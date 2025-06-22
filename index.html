@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Interactive Demo - Manufacturing Execution System</title>
+    <title>MES 互动演示 - 制造执行系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .header {
@@ -337,76 +337,76 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <div class="container-fluid">
-                    <span class="navbar-brand">🏭 MES Interactive Demo</span>
+                    <span class="navbar-brand">🏭 MES 互动演示</span>
                     <div class="d-flex">
-                        <span class="navbar-text">Manufacturing Execution System</span>
+                        <span class="navbar-text">制造执行系统</span>
                     </div>
                 </div>
             </nav>
         </div>
     </div>
 
-    <!-- Simulation Controls -->
+    <!-- 仿真控制 -->
     <div class="simulation-controls">
         <div class="d-flex flex-column align-items-center">
             <span class="status-indicator" id="simulationStatus"></span>
-            <small id="simulationText">Stopped</small>
+            <small id="simulationText">已停止</small>
             <button class="btn btn-sm btn-custom mt-2" onclick="toggleSimulation()">
-                <span id="toggleText">Start</span>
+                <span id="toggleText">启动</span>
             </button>
         </div>
     </div>
 
     <div class="container-fluid">
-        <!-- Module 1: Main Dashboard & Visual Production Line -->
+        <!-- 模块 1: 主仪表板和可视化生产线 -->
         <div class="row">
             <div class="col-12">
                 <div class="production-line">
-                    <h3 class="mb-4">🏭 Production Line Visualization</h3>
+                    <h3 class="mb-4">🏭 生产线可视化</h3>
                     <div class="production-path"></div>
                     <div class="stages-container">
                         <div class="stage stage-slab-yard">
                             <div>
-                                <div>Slab Yard</div>
+                                <div>板坯库</div>
                                 <div class="stage-data">
-                                    <div>Count: <span id="slabYardCount">0</span></div>
-                                    <div>Temp: 25°C</div>
+                                    <div>数量: <span id="slabYardCount">0</span></div>
+                                    <div>温度: 25°C</div>
                                 </div>
                             </div>
                         </div>
                         <div class="stage stage-furnace">
                             <div>
-                                <div>Reheating Furnace</div>
+                                <div>加热炉</div>
                                 <div class="stage-data">
-                                    <div>Temp: <span id="furnaceTemp">1250</span>°C</div>
-                                    <div>Status: <span id="furnaceStatus">Ready</span></div>
+                                    <div>温度: <span id="furnaceTemp">1250</span>°C</div>
+                                    <div>状态: <span id="furnaceStatus">就绪</span></div>
                                 </div>
                             </div>
                         </div>
                         <div class="stage stage-rolling">
                             <div>
-                                <div>Rolling Mill</div>
+                                <div>轧机</div>
                                 <div class="stage-data">
-                                    <div>Speed: <span id="rollingSpeed">15</span> m/s</div>
-                                    <div>Force: <span id="rollingForce">2500</span> kN</div>
+                                    <div>速度: <span id="rollingSpeed">15</span> m/s</div>
+                                    <div>压力: <span id="rollingForce">2500</span> kN</div>
                                 </div>
                             </div>
                         </div>
                         <div class="stage stage-coiler">
                             <div>
-                                <div>Coiler</div>
+                                <div>卷取机</div>
                                 <div class="stage-data">
-                                    <div>RPM: <span id="coilerRpm">45</span></div>
-                                    <div>Tension: <span id="coilerTension">180</span> MPa</div>
+                                    <div>转速: <span id="coilerRpm">45</span> RPM</div>
+                                    <div>张力: <span id="coilerTension">180</span> MPa</div>
                                 </div>
                             </div>
                         </div>
                         <div class="stage stage-coil-yard">
                             <div>
-                                <div>Coil Yard</div>
+                                <div>钢卷库</div>
                                 <div class="stage-data">
-                                    <div>Count: <span id="coilYardCount">0</span></div>
-                                    <div>Capacity: 100</div>
+                                    <div>数量: <span id="coilYardCount">0</span></div>
+                                    <div>容量: 100</div>
                                 </div>
                             </div>
                         </div>
@@ -415,76 +415,76 @@
             </div>
         </div>
 
-        <!-- Module 2: Production Planning & Dispatch -->
+        <!-- 模块 2: 生产计划与调度 -->
         <div class="row">
             <div class="col-md-6">
                 <div class="control-panel">
-                    <h4 class="mb-3">📋 Production Planning</h4>
+                    <h4 class="mb-3">📋 生产计划</h4>
                     <div class="d-flex gap-2 mb-3">
                         <button class="btn btn-optimize" onclick="optimizeSchedule()">
-                            🔧 优化排程 (Optimize)
+                            🔧 优化排程
                         </button>
                         <button class="btn btn-dispatch" onclick="dispatchPlan()" id="dispatchBtn">
-                            🚀 下达计划 (Dispatch)
+                            🚀 下达计划
                         </button>
                         <button class="btn btn-custom" onclick="resetSchedule()">
-                            🔄 Reset
+                            🔄 重置
                         </button>
                     </div>
                     <div class="task-list" id="taskList">
-                        <!-- Tasks will be populated by JavaScript -->
+                        <!-- 任务将由JavaScript填充 -->
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="control-panel">
-                    <h4 class="mb-3">📊 Production Metrics</h4>
+                    <h4 class="mb-3">📊 生产指标</h4>
                     <div class="production-stats">
                         <div class="metric-card">
                             <div class="metric-value" id="totalProduced">0</div>
-                            <div class="metric-label">Total Produced</div>
+                            <div class="metric-label">总产量</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-value" id="currentThroughput">0</div>
-                            <div class="metric-label">Per Hour</div>
+                            <div class="metric-label">每小时产量</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-value" id="qualityRate">0%</div>
-                            <div class="metric-label">Quality Rate</div>
+                            <div class="metric-label">合格率</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Module 3: Coil Yard & Module 4: Reports Dashboard -->
+        <!-- 模块 3: 钢卷库 & 模块 4: 报表仪表板 -->
         <div class="row">
             <div class="col-md-6">
                 <div class="control-panel">
-                    <h4 class="mb-3">🏗️ Finished Coil Yard</h4>
+                    <h4 class="mb-3">🏗️ 成品钢卷库</h4>
                     <div class="coil-yard" id="coilYard">
                         <div style="width: 100%; text-align: center; color: #95a5a6; padding: 20px;">
-                            No finished coils yet. Start production to see results here.
+                            暂无成品钢卷。启动生产以查看结果。
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="control-panel">
-                    <h4 class="mb-3">📈 Production Reports</h4>
+                    <h4 class="mb-3">📈 生产报表</h4>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Coil ID</th>
-                                    <th>Grade</th>
-                                    <th>Status</th>
-                                    <th>Completed</th>
+                                    <th>钢卷编号</th>
+                                    <th>钢种</th>
+                                    <th>状态</th>
+                                    <th>完成时间</th>
                                 </tr>
                             </thead>
                             <tbody id="productionTable">
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted">No production data yet</td>
+                                    <td colspan="4" class="text-center text-muted">暂无生产数据</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -493,47 +493,47 @@
             </div>
         </div>
 
-        <!-- Charts Section -->
+        <!-- 图表区域 -->
         <div class="row">
             <div class="col-md-6">
                 <div class="chart-container">
-                    <h5>Quality Distribution</h5>
+                    <h5>质量分布</h5>
                     <canvas id="qualityChart" width="400" height="200"></canvas>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="chart-container">
-                    <h5>Hourly Production Output</h5>
+                    <h5>小时产量</h5>
                     <canvas id="outputChart" width="400" height="200"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Product Genealogy Modal -->
+    <!-- 产品谱系模态框 -->
     <div class="modal fade modal-custom" id="genealogyModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content modal-content-custom">
                 <div class="modal-header">
-                    <h5 class="modal-title">🔍 Product Genealogy & Traceability</h5>
+                    <h5 class="modal-title">🔍 产品谱系与质量追溯</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div id="genealogyContent">
-                        <!-- Content will be populated by JavaScript -->
+                        <!-- 内容将由JavaScript填充 -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tooltip -->
+    <!-- 工具提示 -->
     <div class="tooltip-custom" id="customTooltip"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ========================
-        // GLOBAL STATE MANAGEMENT
+        // 全局状态管理
         // ========================
         
         let simulationState = {
@@ -553,19 +553,19 @@
         let simulationInterval = null;
         let charts = {};
 
-        // Initial production tasks
+        // 初始生产任务
         const initialTasks = [
-            { id: 'Slab-001', grade: 'Q235', width: 1500, thickness: 250, length: 12000 },
-            { id: 'Slab-002', grade: 'Q345', width: 1200, thickness: 200, length: 10000 },
-            { id: 'Slab-003', grade: 'Q235', width: 1800, thickness: 300, length: 15000 },
-            { id: 'Slab-004', grade: 'SS400', width: 1000, thickness: 180, length: 8000 },
-            { id: 'Slab-005', grade: 'Q345', width: 1600, thickness: 220, length: 11000 },
-            { id: 'Slab-006', grade: 'Q235', width: 1400, thickness: 280, length: 13000 },
-            { id: 'Slab-007', grade: 'SS400', width: 1100, thickness: 160, length: 9000 },
-            { id: 'Slab-008', grade: 'Q345', width: 1700, thickness: 240, length: 14000 }
+            { id: '板坯-001', grade: 'Q235', width: 1500, thickness: 250, length: 12000 },
+            { id: '板坯-002', grade: 'Q345', width: 1200, thickness: 200, length: 10000 },
+            { id: '板坯-003', grade: 'Q235', width: 1800, thickness: 300, length: 15000 },
+            { id: '板坯-004', grade: 'SS400', width: 1000, thickness: 180, length: 8000 },
+            { id: '板坯-005', grade: 'Q345', width: 1600, thickness: 220, length: 11000 },
+            { id: '板坯-006', grade: 'Q235', width: 1400, thickness: 280, length: 13000 },
+            { id: '板坯-007', grade: 'SS400', width: 1100, thickness: 160, length: 9000 },
+            { id: '板坯-008', grade: 'Q345', width: 1700, thickness: 240, length: 14000 }
         ];
 
-        // Production stages configuration
+        // 生产阶段配置
         const stagePositions = [
             { name: 'slabYard', x: 75 },
             { name: 'furnace', x: 245 },
@@ -575,7 +575,7 @@
         ];
 
         // ========================
-        // INITIALIZATION
+        // 初始化
         // ========================
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -592,7 +592,7 @@
         }
 
         function setupEventListeners() {
-            // Tooltip functionality
+            // 工具提示功能
             document.addEventListener('mousemove', function(e) {
                 const tooltip = document.getElementById('customTooltip');
                 if (tooltip.style.opacity === '1') {
@@ -603,13 +603,13 @@
         }
 
         // ========================
-        // MODULE 2: PRODUCTION PLANNING
+        // 模块 2: 生产计划
         // ========================
         
         function updateTaskList() {
             const taskList = document.getElementById('taskList');
             if (simulationState.currentTasks.length === 0) {
-                taskList.innerHTML = '<div class="text-center text-muted">No tasks available</div>';
+                taskList.innerHTML = '<div class="text-center text-muted">无可用任务</div>';
                 return;
             }
 
@@ -618,11 +618,11 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>${task.id}</strong>
-                            <div class="small text-muted">Grade: ${task.grade} | Width: ${task.width}mm</div>
+                            <div class="small text-muted">钢种: ${task.grade} | 宽度: ${task.width}mm</div>
                         </div>
                         <div class="text-end">
-                            <div class="small">L: ${task.length}mm</div>
-                            <div class="small">T: ${task.thickness}mm</div>
+                            <div class="small">长度: ${task.length}mm</div>
+                            <div class="small">厚度: ${task.thickness}mm</div>
                         </div>
                     </div>
                 </div>
@@ -630,7 +630,7 @@
         }
 
         function optimizeSchedule() {
-            // Optimization algorithm: sort by grade first, then by width
+            // 优化算法：先按钢种排序，再按宽度排序
             simulationState.currentTasks.sort((a, b) => {
                 if (a.grade !== b.grade) {
                     return a.grade.localeCompare(b.grade);
@@ -639,12 +639,12 @@
             });
             
             updateTaskList();
-            showNotification('Schedule optimized successfully!', 'success');
+            showNotification('计划优化成功！', 'success');
         }
 
         function dispatchPlan() {
             if (simulationState.currentTasks.length === 0) {
-                showNotification('No tasks to dispatch!', 'warning');
+                showNotification('没有可下达的任务！', 'warning');
                 return;
             }
 
@@ -652,7 +652,7 @@
             simulationState.currentTasks = [];
             updateTaskList();
             
-            showNotification(`${simulationState.dispatchedTasks.length} tasks dispatched successfully!`, 'success');
+            showNotification(`成功下达 ${simulationState.dispatchedTasks.length} 个任务！`, 'success');
             
             if (!simulationState.isRunning) {
                 toggleSimulation();
@@ -663,11 +663,11 @@
             simulationState.currentTasks = [...initialTasks];
             simulationState.dispatchedTasks = [];
             updateTaskList();
-            showNotification('Schedule reset to initial state', 'info');
+            showNotification('计划已重置为初始状态', 'info');
         }
 
         // ========================
-        // MODULE 1: SIMULATION ENGINE
+        // 模块 1: 仿真引擎
         // ========================
         
         function toggleSimulation() {
@@ -681,13 +681,13 @@
 
         function startSimulation() {
             if (simulationState.dispatchedTasks.length === 0) {
-                showNotification('Please dispatch a plan first!', 'warning');
+                showNotification('请先下达生产计划！', 'warning');
                 return;
             }
             
             simulationState.isRunning = true;
             simulationInterval = setInterval(simulationTick, 2000);
-            showNotification('Production simulation started', 'success');
+            showNotification('生产仿真已启动', 'success');
         }
 
         function stopSimulation() {
@@ -696,7 +696,7 @@
                 clearInterval(simulationInterval);
                 simulationInterval = null;
             }
-            showNotification('Production simulation stopped', 'info');
+            showNotification('生产仿真已停止', 'info');
         }
 
         function updateSimulationStatus() {
@@ -706,31 +706,31 @@
             
             if (simulationState.isRunning) {
                 statusIndicator.className = 'status-indicator status-running pulse';
-                statusText.textContent = 'Running';
-                toggleText.textContent = 'Stop';
+                statusText.textContent = '运行中';
+                toggleText.textContent = '停止';
             } else {
                 statusIndicator.className = 'status-indicator status-stopped';
-                statusText.textContent = 'Stopped';
-                toggleText.textContent = 'Start';
+                statusText.textContent = '已停止';
+                toggleText.textContent = '启动';
             }
         }
 
         function simulationTick() {
             simulationState.simulationTime += 2;
             
-            // Introduce new slabs if needed
+            // 根据需要引入新板坯
             introduceNewSlab();
             
-            // Update existing slabs
+            // 更新现有板坯
             updateActiveSlabs();
             
-            // Update stage data
+            // 更新工段数据
             updateStageData();
             
-            // Update metrics
+            // 更新指标
             updateMetrics();
             
-            // Update charts
+            // 更新图表
             updateCharts();
         }
 
@@ -750,13 +750,13 @@
             return {
                 id: task.id,
                 originalTask: task,
-                stage: 0, // 0: slab yard, 1: furnace, 2: rolling, 3: coiler, 4: coil yard
+                stage: 0, // 0: 板坯库, 1: 加热炉, 2: 轧机, 3: 卷取机, 4: 钢卷库
                 position: stagePositions[0].x,
                 startTime: simulationState.simulationTime,
                 stageHistory: [{
-                    stage: 'Slab Yard',
+                    stage: '板坯库',
                     timestamp: new Date().toLocaleTimeString(),
-                    data: { temperature: 25, status: 'Ready' }
+                    data: { temperature: 25, status: '就绪' }
                 }],
                 qualityData: generateQualityData()
             };
@@ -777,45 +777,45 @@
         function updateActiveSlabs() {
             simulationState.activeSlabs.forEach(slab => {
                 if (slab.stage < 4) {
-                    // Move to next stage
+                    // 移动到下一工段
                     slab.stage++;
                     slab.position = stagePositions[slab.stage].x;
                     
-                    // Record stage history
-                    const stageNames = ['Slab Yard', 'Reheating Furnace', 'Rolling Mill', 'Coiler', 'Coil Yard'];
+                    // 记录工段历史
+                    const stageNames = ['板坯库', '加热炉', '轧机', '卷取机', '钢卷库'];
                     slab.stageHistory.push({
                         stage: stageNames[slab.stage],
                         timestamp: new Date().toLocaleTimeString(),
                         data: generateStageData(slab.stage)
                     });
                     
-                    // Update slab appearance
+                    // 更新板坯外观
                     updateSlabAppearance(slab);
                     
-                    // Check if finished
+                    // 检查是否完成
                     if (slab.stage === 4) {
                         finishSlab(slab);
                     }
                 }
             });
             
-            // Remove finished slabs from active list
+            // 从活动列表中移除已完成的板坯
             simulationState.activeSlabs = simulationState.activeSlabs.filter(slab => slab.stage < 4);
         }
 
         function generateStageData(stage) {
             switch(stage) {
-                case 1: // Furnace
+                case 1: // 加热炉
                     return { 
                         temperature: Math.floor(1200 + Math.random() * 100),
-                        status: 'Heating'
+                        status: '加热中'
                     };
-                case 2: // Rolling
+                case 2: // 轧机
                     return {
                         speed: Math.floor(12 + Math.random() * 8),
                         force: Math.floor(2000 + Math.random() * 1000)
                     };
-                case 3: // Coiler
+                case 3: // 卷取机
                     return {
                         rpm: Math.floor(40 + Math.random() * 20),
                         tension: Math.floor(150 + Math.random() * 60)
@@ -834,7 +834,7 @@
             slabElement.style.top = '50%';
             slabElement.style.transform = 'translateY(-50%)';
             
-            // Add hover events
+            // 添加悬停事件
             slabElement.addEventListener('mouseenter', function(e) {
                 showTooltip(e, slab.id);
             });
@@ -850,10 +850,10 @@
             const slabElement = document.getElementById(`slab-${slab.id}`);
             if (!slabElement) return;
             
-            // Update position
+            // 更新位置
             slabElement.style.left = slab.position + 'px';
             
-            // Update appearance based on stage
+            // 根据工段更新外观
             slabElement.className = 'slab';
             if (slab.stage === 1) {
                 slabElement.classList.add('in-furnace');
@@ -863,41 +863,41 @@
         }
 
         function finishSlab(slab) {
-            // Remove from production line
+            // 从生产线上移除
             const slabElement = document.getElementById(`slab-${slab.id}`);
             if (slabElement) {
                 slabElement.remove();
             }
             
-            // Create finished coil
+            // 创建成品钢卷
             const coil = {
                 ...slab,
-                coilId: `COIL-${slab.id.split('-')[1]}`,
+                coilId: `钢卷-${slab.id.split('-')[1]}`,
                 finishedTime: new Date().toLocaleTimeString(),
-                qualityStatus: Math.random() > 0.1 ? 'Qualified' : 'Defective'
+                qualityStatus: Math.random() > 0.1 ? '合格' : '不合格'
             };
             
             simulationState.finishedCoils.push(coil);
             
-            // Update metrics
+            // 更新指标
             simulationState.productionMetrics.totalProduced++;
-            if (coil.qualityStatus === 'Qualified') {
+            if (coil.qualityStatus === '合格') {
                 simulationState.productionMetrics.qualityStats.qualified++;
             } else {
                 simulationState.productionMetrics.qualityStats.defective++;
             }
             
-            // Render in coil yard
+            // 在钢卷库中渲染
             renderFinishedCoil(coil);
             
-            // Update production table
+            // 更新生产表格
             updateProductionTable();
         }
 
         function renderFinishedCoil(coil) {
             const coilYard = document.getElementById('coilYard');
             
-            // Clear placeholder if this is the first coil
+            // 如果这是第一个钢卷，清除占位符
             if (simulationState.finishedCoils.length === 1) {
                 coilYard.innerHTML = '';
             }
@@ -905,9 +905,9 @@
             const coilElement = document.createElement('div');
             coilElement.className = 'finished-coil fade-in';
             coilElement.textContent = coil.coilId.split('-')[1];
-            coilElement.title = `Click for details: ${coil.coilId}`;
+            coilElement.title = `点击查看详情: ${coil.coilId}`;
             
-            if (coil.qualityStatus === 'Defective') {
+            if (coil.qualityStatus === '不合格') {
                 coilElement.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
             }
             
@@ -919,7 +919,7 @@
         }
 
         // ========================
-        // MODULE 3: PRODUCT GENEALOGY
+        // 模块 3: 产品谱系
         // ========================
         
         function showGenealogyModal(coil) {
@@ -929,27 +929,27 @@
             content.innerHTML = `
                 <div class="row">
                     <div class="col-md-6">
-                        <h6>Basic Information</h6>
+                        <h6>基本信息</h6>
                         <table class="table table-sm">
-                            <tr><td><strong>Coil ID:</strong></td><td>${coil.coilId}</td></tr>
-                            <tr><td><strong>Original Slab:</strong></td><td>${coil.id}</td></tr>
-                            <tr><td><strong>Steel Grade:</strong></td><td>${coil.originalTask.grade}</td></tr>
-                            <tr><td><strong>Width:</strong></td><td>${coil.originalTask.width}mm</td></tr>
-                            <tr><td><strong>Quality Status:</strong></td>
-                                <td><span class="badge ${coil.qualityStatus === 'Qualified' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
+                            <tr><td><strong>钢卷编号:</strong></td><td>${coil.coilId}</td></tr>
+                            <tr><td><strong>原始板坯:</strong></td><td>${coil.id}</td></tr>
+                            <tr><td><strong>钢种牌号:</strong></td><td>${coil.originalTask.grade}</td></tr>
+                            <tr><td><strong>宽度:</strong></td><td>${coil.originalTask.width}mm</td></tr>
+                            <tr><td><strong>质量状态:</strong></td>
+                                <td><span class="badge ${coil.qualityStatus === '合格' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
                             </tr>
-                            <tr><td><strong>Finished:</strong></td><td>${coil.finishedTime}</td></tr>
+                            <tr><td><strong>完成时间:</strong></td><td>${coil.finishedTime}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
-                        <h6>Process History</h6>
+                        <h6>工艺历程</h6>
                         <div class="timeline">
                             ${coil.stageHistory.map(stage => `
                                 <div class="mb-2">
                                     <small class="text-muted">${stage.timestamp}</small>
                                     <div><strong>${stage.stage}</strong></div>
                                     ${Object.entries(stage.data).map(([key, value]) => 
-                                        `<small>${key}: ${value}</small>`
+                                        `<small>${getChineseLabel(key)}: ${value}</small>`
                                     ).join('<br>')}
                                 </div>
                             `).join('<hr class="my-2">')}
@@ -958,7 +958,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
-                        <h6>Quality Profile</h6>
+                        <h6>质量曲线</h6>
                         <canvas id="genealogyChart" width="400" height="200"></canvas>
                     </div>
                 </div>
@@ -966,10 +966,22 @@
             
             modal.show();
             
-            // Create quality chart after modal is shown
+            // 模态框显示后创建质量图表
             setTimeout(() => {
                 createGenealogyChart(coil.qualityData);
             }, 300);
+        }
+
+        function getChineseLabel(key) {
+            const labels = {
+                'temperature': '温度',
+                'status': '状态',
+                'speed': '速度',
+                'force': '压力',
+                'rpm': '转速',
+                'tension': '张力'
+            };
+            return labels[key] || key;
         }
 
         function createGenealogyChart(qualityData) {
@@ -979,13 +991,13 @@
                 data: {
                     labels: qualityData.map(d => `T${d.time}`),
                     datasets: [{
-                        label: 'Temperature (°C)',
+                        label: '温度 (°C)',
                         data: qualityData.map(d => d.temperature),
                         borderColor: 'rgb(231, 76, 60)',
                         backgroundColor: 'rgba(231, 76, 60, 0.1)',
                         yAxisID: 'y'
                     }, {
-                        label: 'Thickness (mm)',
+                        label: '厚度 (mm)',
                         data: qualityData.map(d => d.thickness),
                         borderColor: 'rgb(52, 152, 219)',
                         backgroundColor: 'rgba(52, 152, 219, 0.1)',
@@ -1014,7 +1026,7 @@
         }
 
         // ========================
-        // MODULE 4: REPORTS & METRICS
+        // 模块 4: 报表与指标
         // ========================
         
         function updateMetrics() {
@@ -1022,7 +1034,7 @@
             document.getElementById('slabYardCount').textContent = simulationState.currentTasks.length + simulationState.dispatchedTasks.length;
             document.getElementById('coilYardCount').textContent = simulationState.finishedCoils.length;
             
-            // Calculate hourly throughput
+            // 计算小时产量
             const currentHour = Math.floor(simulationState.simulationTime / 3600);
             if (simulationState.productionMetrics.hourlyOutput.length <= currentHour) {
                 simulationState.productionMetrics.hourlyOutput.push(0);
@@ -1032,22 +1044,22 @@
                 Math.floor((simulationState.productionMetrics.totalProduced / (simulationState.simulationTime / 3600)) * 10) / 10 : 0;
             document.getElementById('currentThroughput').textContent = hourlyRate;
             
-            // Calculate quality rate
+            // 计算合格率
             const total = simulationState.productionMetrics.qualityStats.qualified + simulationState.productionMetrics.qualityStats.defective;
             const qualityRate = total > 0 ? Math.floor((simulationState.productionMetrics.qualityStats.qualified / total) * 100) : 0;
             document.getElementById('qualityRate').textContent = qualityRate + '%';
         }
 
         function updateStageData() {
-            // Update furnace data
+            // 更新加热炉数据
             document.getElementById('furnaceTemp').textContent = Math.floor(1200 + Math.random() * 100);
-            document.getElementById('furnaceStatus').textContent = simulationState.activeSlabs.some(s => s.stage === 1) ? 'Heating' : 'Ready';
+            document.getElementById('furnaceStatus').textContent = simulationState.activeSlabs.some(s => s.stage === 1) ? '加热中' : '就绪';
             
-            // Update rolling mill data
+            // 更新轧机数据
             document.getElementById('rollingSpeed').textContent = Math.floor(12 + Math.random() * 8);
             document.getElementById('rollingForce').textContent = Math.floor(2000 + Math.random() * 1000);
             
-            // Update coiler data
+            // 更新卷取机数据
             document.getElementById('coilerRpm').textContent = Math.floor(40 + Math.random() * 20);
             document.getElementById('coilerTension').textContent = Math.floor(150 + Math.random() * 60);
         }
@@ -1056,7 +1068,7 @@
             const tableBody = document.getElementById('productionTable');
             
             if (simulationState.finishedCoils.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No production data yet</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">暂无生产数据</td></tr>';
                 return;
             }
             
@@ -1064,19 +1076,19 @@
                 <tr>
                     <td>${coil.coilId}</td>
                     <td>${coil.originalTask.grade}</td>
-                    <td><span class="badge ${coil.qualityStatus === 'Qualified' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
+                    <td><span class="badge ${coil.qualityStatus === '合格' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
                     <td>${coil.finishedTime}</td>
                 </tr>
             `).join('');
         }
 
         function initializeCharts() {
-            // Quality Chart
+            // 质量图表
             const qualityCtx = document.getElementById('qualityChart').getContext('2d');
             charts.quality = new Chart(qualityCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['Qualified', 'Defective'],
+                    labels: ['合格', '不合格'],
                     datasets: [{
                         data: [95, 5],
                         backgroundColor: ['#27ae60', '#e74c3c']
@@ -1092,14 +1104,14 @@
                 }
             });
             
-            // Output Chart
+            // 产量图表
             const outputCtx = document.getElementById('outputChart').getContext('2d');
             charts.output = new Chart(outputCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Hour 1', 'Hour 2', 'Hour 3', 'Hour 4', 'Hour 5'],
+                    labels: ['第1小时', '第2小时', '第3小时', '第4小时', '第5小时'],
                     datasets: [{
-                        label: 'Coils Produced',
+                        label: '钢卷产量',
                         data: [0, 0, 0, 0, 0],
                         backgroundColor: '#3498db'
                     }]
@@ -1116,13 +1128,13 @@
         }
 
         function updateCharts() {
-            // Update quality chart
+            // 更新质量图表
             const qualified = simulationState.productionMetrics.qualityStats.qualified;
             const defective = simulationState.productionMetrics.qualityStats.defective;
             charts.quality.data.datasets[0].data = [qualified, defective];
             charts.quality.update();
             
-            // Update output chart
+            // 更新产量图表
             const currentHour = Math.floor(simulationState.simulationTime / 3600);
             if (currentHour < 5) {
                 charts.output.data.datasets[0].data[currentHour] = simulationState.productionMetrics.totalProduced;
@@ -1131,7 +1143,7 @@
         }
 
         // ========================
-        // UTILITY FUNCTIONS
+        // 实用函数
         // ========================
         
         function showTooltip(event, slabId) {
@@ -1148,7 +1160,7 @@
         }
 
         function showNotification(message, type) {
-            // Create notification element
+            // 创建通知元素
             const notification = document.createElement('div');
             notification.className = `alert alert-${type} alert-custom position-fixed`;
             notification.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
@@ -1161,7 +1173,7 @@
             
             document.body.appendChild(notification);
             
-            // Auto remove after 3 seconds
+            // 3秒后自动移除
             setTimeout(() => {
                 if (notification.parentElement) {
                     notification.remove();
@@ -1170,29 +1182,29 @@
         }
 
         // ========================
-        // DEMO DATA POPULATION
+        // 演示数据填充
         // ========================
         
         function populateDemoData() {
-            // This function can be called to populate with demo data for presentation
+            // 此函数可用于演示时快速填充数据
             for (let i = 0; i < 3; i++) {
                 setTimeout(() => {
                     if (simulationState.dispatchedTasks.length > 0) {
                         const task = simulationState.dispatchedTasks.shift();
                         const slab = createSlab(task);
-                        slab.stage = 4; // Fast-forward to completion
+                        slab.stage = 4; // 快进到完成状态
                         finishSlab(slab);
                     }
                 }, i * 1000);
             }
         }
 
-        // Add keyboard shortcuts for demo
+        // 添加键盘快捷键用于演示
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'd') {
                 e.preventDefault();
                 populateDemoData();
-                showNotification('Demo data populated!', 'info');
+                showNotification('演示数据已填充！', 'info');
             }
         });
     </script>
