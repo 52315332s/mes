@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MES Interactive Demo - Manufacturing Execution System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .production-line {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .stage {
+            width: 150px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 0 20px;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stage:hover {
+            transform: translateY(-2px);
+        }
+
+        .stage-slab-yard { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+        .stage-furnace { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .stage-rolling { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .stage-coiler { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .stage-coil-yard { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+        .stage-data {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .production-path {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #bdc3c7, #95a5a6);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        .stages-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slab {
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            position: absolute;
+            border-radius: 3px;
+            z-index: 3;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .slab.in-furnace {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+        }
+
+        .slab.coil {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .tooltip-custom {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f87);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-optimize {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .btn-optimize:hover {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-dispatch {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .btn-dispatch:hover {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .task-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .task-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .coil-yard {
+            min-height: 100px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+            align-content: flex-start;
+        }
+
+        .finished-coil {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .finished-coil:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .modal-custom {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content-custom {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-running { background: #2ecc71; }
+        .status-stopped { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .simulation-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .production-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container-fluid">
+                    <span class="navbar-brand">🏭 MES Interactive Demo</span>
+                    <div class="d-flex">
+                        <span class="navbar-text">Manufacturing Execution System</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Simulation Controls -->
+    <div class="simulation-controls">
+        <div class="d-flex flex-column align-items-center">
+            <span class="status-indicator" id="simulationStatus"></span>
+            <small id="simulationText">Stopped</small>
+            <button class="btn btn-sm btn-custom mt-2" onclick="toggleSimulation()">
+                <span id="toggleText">Start</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Module 1: Main Dashboard & Visual Production Line -->
+        <div class="row">
+            <div class="col-12">
+                <div class="production-line">
+                    <h3 class="mb-4">🏭 Production Line Visualization</h3>
+                    <div class="production-path"></div>
+                    <div class="stages-container">
+                        <div class="stage stage-slab-yard">
+                            <div>
+                                <div>Slab Yard</div>
+                                <div class="stage-data">
+                                    <div>Count: <span id="slabYardCount">0</span></div>
+                                    <div>Temp: 25°C</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stage stage-furnace">
+                            <div>
+                                <div>Reheating Furnace</div>
+                                <div class="stage-data">
+                                    <div>Temp: <span id="furnaceTemp">1250</span>°C</div>
+                                    <div>Status: <span id="furnaceStatus">Ready</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stage stage-rolling">
+                            <div>
+                                <div>Rolling Mill</div>
+                                <div class="stage-data">
+                                    <div>Speed: <span id="rollingSpeed">15</span> m/s</div>
+                                    <div>Force: <span id="rollingForce">2500</span> kN</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stage stage-coiler">
+                            <div>
+                                <div>Coiler</div>
+                                <div class="stage-data">
+                                    <div>RPM: <span id="coilerRpm">45</span></div>
+                                    <div>Tension: <span id="coilerTension">180</span> MPa</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stage stage-coil-yard">
+                            <div>
+                                <div>Coil Yard</div>
+                                <div class="stage-data">
+                                    <div>Count: <span id="coilYardCount">0</span></div>
+                                    <div>Capacity: 100</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: Production Planning & Dispatch -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="control-panel">
+                    <h4 class="mb-3">📋 Production Planning</h4>
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-optimize" onclick="optimizeSchedule()">
+                            🔧 优化排程 (Optimize)
+                        </button>
+                        <button class="btn btn-dispatch" onclick="dispatchPlan()" id="dispatchBtn">
+                            🚀 下达计划 (Dispatch)
+                        </button>
+                        <button class="btn btn-custom" onclick="resetSchedule()">
+                            🔄 Reset
+                        </button>
+                    </div>
+                    <div class="task-list" id="taskList">
+                        <!-- Tasks will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="control-panel">
+                    <h4 class="mb-3">📊 Production Metrics</h4>
+                    <div class="production-stats">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalProduced">0</div>
+                            <div class="metric-label">Total Produced</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="currentThroughput">0</div>
+                            <div class="metric-label">Per Hour</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="qualityRate">0%</div>
+                            <div class="metric-label">Quality Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Coil Yard & Module 4: Reports Dashboard -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="control-panel">
+                    <h4 class="mb-3">🏗️ Finished Coil Yard</h4>
+                    <div class="coil-yard" id="coilYard">
+                        <div style="width: 100%; text-align: center; color: #95a5a6; padding: 20px;">
+                            No finished coils yet. Start production to see results here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="control-panel">
+                    <h4 class="mb-3">📈 Production Reports</h4>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Coil ID</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                    <th>Completed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productionTable">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No production data yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5>Quality Distribution</h5>
+                    <canvas id="qualityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5>Hourly Production Output</h5>
+                    <canvas id="outputChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Genealogy Modal -->
+    <div class="modal fade modal-custom" id="genealogyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔍 Product Genealogy & Traceability</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="genealogyContent">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip-custom" id="customTooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ========================
+        // GLOBAL STATE MANAGEMENT
+        // ========================
+        
+        let simulationState = {
+            isRunning: false,
+            currentTasks: [],
+            dispatchedTasks: [],
+            activeSlabs: [],
+            finishedCoils: [],
+            simulationTime: 0,
+            productionMetrics: {
+                totalProduced: 0,
+                hourlyOutput: [],
+                qualityStats: { qualified: 0, defective: 0 }
+            }
+        };
+
+        let simulationInterval = null;
+        let charts = {};
+
+        // Initial production tasks
+        const initialTasks = [
+            { id: 'Slab-001', grade: 'Q235', width: 1500, thickness: 250, length: 12000 },
+            { id: 'Slab-002', grade: 'Q345', width: 1200, thickness: 200, length: 10000 },
+            { id: 'Slab-003', grade: 'Q235', width: 1800, thickness: 300, length: 15000 },
+            { id: 'Slab-004', grade: 'SS400', width: 1000, thickness: 180, length: 8000 },
+            { id: 'Slab-005', grade: 'Q345', width: 1600, thickness: 220, length: 11000 },
+            { id: 'Slab-006', grade: 'Q235', width: 1400, thickness: 280, length: 13000 },
+            { id: 'Slab-007', grade: 'SS400', width: 1100, thickness: 160, length: 9000 },
+            { id: 'Slab-008', grade: 'Q345', width: 1700, thickness: 240, length: 14000 }
+        ];
+
+        // Production stages configuration
+        const stagePositions = [
+            { name: 'slabYard', x: 75 },
+            { name: 'furnace', x: 245 },
+            { name: 'rolling', x: 415 },
+            { name: 'coiler', x: 585 },
+            { name: 'coilYard', x: 755 }
+        ];
+
+        // ========================
+        // INITIALIZATION
+        // ========================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApplication();
+        });
+
+        function initializeApplication() {
+            simulationState.currentTasks = [...initialTasks];
+            updateTaskList();
+            updateSimulationStatus();
+            initializeCharts();
+            setupEventListeners();
+            updateMetrics();
+        }
+
+        function setupEventListeners() {
+            // Tooltip functionality
+            document.addEventListener('mousemove', function(e) {
+                const tooltip = document.getElementById('customTooltip');
+                if (tooltip.style.opacity === '1') {
+                    tooltip.style.left = (e.clientX + 10) + 'px';
+                    tooltip.style.top = (e.clientY - 30) + 'px';
+                }
+            });
+        }
+
+        // ========================
+        // MODULE 2: PRODUCTION PLANNING
+        // ========================
+        
+        function updateTaskList() {
+            const taskList = document.getElementById('taskList');
+            if (simulationState.currentTasks.length === 0) {
+                taskList.innerHTML = '<div class="text-center text-muted">No tasks available</div>';
+                return;
+            }
+
+            taskList.innerHTML = simulationState.currentTasks.map(task => `
+                <div class="task-item fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${task.id}</strong>
+                            <div class="small text-muted">Grade: ${task.grade} | Width: ${task.width}mm</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="small">L: ${task.length}mm</div>
+                            <div class="small">T: ${task.thickness}mm</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function optimizeSchedule() {
+            // Optimization algorithm: sort by grade first, then by width
+            simulationState.currentTasks.sort((a, b) => {
+                if (a.grade !== b.grade) {
+                    return a.grade.localeCompare(b.grade);
+                }
+                return a.width - b.width;
+            });
+            
+            updateTaskList();
+            showNotification('Schedule optimized successfully!', 'success');
+        }
+
+        function dispatchPlan() {
+            if (simulationState.currentTasks.length === 0) {
+                showNotification('No tasks to dispatch!', 'warning');
+                return;
+            }
+
+            simulationState.dispatchedTasks = [...simulationState.currentTasks];
+            simulationState.currentTasks = [];
+            updateTaskList();
+            
+            showNotification(`${simulationState.dispatchedTasks.length} tasks dispatched successfully!`, 'success');
+            
+            if (!simulationState.isRunning) {
+                toggleSimulation();
+            }
+        }
+
+        function resetSchedule() {
+            simulationState.currentTasks = [...initialTasks];
+            simulationState.dispatchedTasks = [];
+            updateTaskList();
+            showNotification('Schedule reset to initial state', 'info');
+        }
+
+        // ========================
+        // MODULE 1: SIMULATION ENGINE
+        // ========================
+        
+        function toggleSimulation() {
+            if (simulationState.isRunning) {
+                stopSimulation();
+            } else {
+                startSimulation();
+            }
+            updateSimulationStatus();
+        }
+
+        function startSimulation() {
+            if (simulationState.dispatchedTasks.length === 0) {
+                showNotification('Please dispatch a plan first!', 'warning');
+                return;
+            }
+            
+            simulationState.isRunning = true;
+            simulationInterval = setInterval(simulationTick, 2000);
+            showNotification('Production simulation started', 'success');
+        }
+
+        function stopSimulation() {
+            simulationState.isRunning = false;
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+                simulationInterval = null;
+            }
+            showNotification('Production simulation stopped', 'info');
+        }
+
+        function updateSimulationStatus() {
+            const statusIndicator = document.getElementById('simulationStatus');
+            const statusText = document.getElementById('simulationText');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (simulationState.isRunning) {
+                statusIndicator.className = 'status-indicator status-running pulse';
+                statusText.textContent = 'Running';
+                toggleText.textContent = 'Stop';
+            } else {
+                statusIndicator.className = 'status-indicator status-stopped';
+                statusText.textContent = 'Stopped';
+                toggleText.textContent = 'Start';
+            }
+        }
+
+        function simulationTick() {
+            simulationState.simulationTime += 2;
+            
+            // Introduce new slabs if needed
+            introduceNewSlab();
+            
+            // Update existing slabs
+            updateActiveSlabs();
+            
+            // Update stage data
+            updateStageData();
+            
+            // Update metrics
+            updateMetrics();
+            
+            // Update charts
+            updateCharts();
+        }
+
+        function introduceNewSlab() {
+            if (simulationState.dispatchedTasks.length > 0 && 
+                (simulationState.activeSlabs.length === 0 || 
+                 simulationState.activeSlabs[simulationState.activeSlabs.length - 1].stage > 0)) {
+                
+                const task = simulationState.dispatchedTasks.shift();
+                const slab = createSlab(task);
+                simulationState.activeSlabs.push(slab);
+                renderSlab(slab);
+            }
+        }
+
+        function createSlab(task) {
+            return {
+                id: task.id,
+                originalTask: task,
+                stage: 0, // 0: slab yard, 1: furnace, 2: rolling, 3: coiler, 4: coil yard
+                position: stagePositions[0].x,
+                startTime: simulationState.simulationTime,
+                stageHistory: [{
+                    stage: 'Slab Yard',
+                    timestamp: new Date().toLocaleTimeString(),
+                    data: { temperature: 25, status: 'Ready' }
+                }],
+                qualityData: generateQualityData()
+            };
+        }
+
+        function generateQualityData() {
+            const data = [];
+            for (let i = 0; i < 10; i++) {
+                data.push({
+                    time: i,
+                    temperature: 1250 + Math.random() * 100 - 50,
+                    thickness: 2.5 + Math.random() * 0.5 - 0.25
+                });
+            }
+            return data;
+        }
+
+        function updateActiveSlabs() {
+            simulationState.activeSlabs.forEach(slab => {
+                if (slab.stage < 4) {
+                    // Move to next stage
+                    slab.stage++;
+                    slab.position = stagePositions[slab.stage].x;
+                    
+                    // Record stage history
+                    const stageNames = ['Slab Yard', 'Reheating Furnace', 'Rolling Mill', 'Coiler', 'Coil Yard'];
+                    slab.stageHistory.push({
+                        stage: stageNames[slab.stage],
+                        timestamp: new Date().toLocaleTimeString(),
+                        data: generateStageData(slab.stage)
+                    });
+                    
+                    // Update slab appearance
+                    updateSlabAppearance(slab);
+                    
+                    // Check if finished
+                    if (slab.stage === 4) {
+                        finishSlab(slab);
+                    }
+                }
+            });
+            
+            // Remove finished slabs from active list
+            simulationState.activeSlabs = simulationState.activeSlabs.filter(slab => slab.stage < 4);
+        }
+
+        function generateStageData(stage) {
+            switch(stage) {
+                case 1: // Furnace
+                    return { 
+                        temperature: Math.floor(1200 + Math.random() * 100),
+                        status: 'Heating'
+                    };
+                case 2: // Rolling
+                    return {
+                        speed: Math.floor(12 + Math.random() * 8),
+                        force: Math.floor(2000 + Math.random() * 1000)
+                    };
+                case 3: // Coiler
+                    return {
+                        rpm: Math.floor(40 + Math.random() * 20),
+                        tension: Math.floor(150 + Math.random() * 60)
+                    };
+                default:
+                    return {};
+            }
+        }
+
+        function renderSlab(slab) {
+            const productionLine = document.querySelector('.production-line');
+            const slabElement = document.createElement('div');
+            slabElement.className = 'slab';
+            slabElement.id = `slab-${slab.id}`;
+            slabElement.style.left = slab.position + 'px';
+            slabElement.style.top = '50%';
+            slabElement.style.transform = 'translateY(-50%)';
+            
+            // Add hover events
+            slabElement.addEventListener('mouseenter', function(e) {
+                showTooltip(e, slab.id);
+            });
+            
+            slabElement.addEventListener('mouseleave', function() {
+                hideTooltip();
+            });
+            
+            productionLine.appendChild(slabElement);
+        }
+
+        function updateSlabAppearance(slab) {
+            const slabElement = document.getElementById(`slab-${slab.id}`);
+            if (!slabElement) return;
+            
+            // Update position
+            slabElement.style.left = slab.position + 'px';
+            
+            // Update appearance based on stage
+            slabElement.className = 'slab';
+            if (slab.stage === 1) {
+                slabElement.classList.add('in-furnace');
+            } else if (slab.stage >= 3) {
+                slabElement.classList.add('coil');
+            }
+        }
+
+        function finishSlab(slab) {
+            // Remove from production line
+            const slabElement = document.getElementById(`slab-${slab.id}`);
+            if (slabElement) {
+                slabElement.remove();
+            }
+            
+            // Create finished coil
+            const coil = {
+                ...slab,
+                coilId: `COIL-${slab.id.split('-')[1]}`,
+                finishedTime: new Date().toLocaleTimeString(),
+                qualityStatus: Math.random() > 0.1 ? 'Qualified' : 'Defective'
+            };
+            
+            simulationState.finishedCoils.push(coil);
+            
+            // Update metrics
+            simulationState.productionMetrics.totalProduced++;
+            if (coil.qualityStatus === 'Qualified') {
+                simulationState.productionMetrics.qualityStats.qualified++;
+            } else {
+                simulationState.productionMetrics.qualityStats.defective++;
+            }
+            
+            // Render in coil yard
+            renderFinishedCoil(coil);
+            
+            // Update production table
+            updateProductionTable();
+        }
+
+        function renderFinishedCoil(coil) {
+            const coilYard = document.getElementById('coilYard');
+            
+            // Clear placeholder if this is the first coil
+            if (simulationState.finishedCoils.length === 1) {
+                coilYard.innerHTML = '';
+            }
+            
+            const coilElement = document.createElement('div');
+            coilElement.className = 'finished-coil fade-in';
+            coilElement.textContent = coil.coilId.split('-')[1];
+            coilElement.title = `Click for details: ${coil.coilId}`;
+            
+            if (coil.qualityStatus === 'Defective') {
+                coilElement.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            }
+            
+            coilElement.addEventListener('click', function() {
+                showGenealogyModal(coil);
+            });
+            
+            coilYard.appendChild(coilElement);
+        }
+
+        // ========================
+        // MODULE 3: PRODUCT GENEALOGY
+        // ========================
+        
+        function showGenealogyModal(coil) {
+            const modal = new bootstrap.Modal(document.getElementById('genealogyModal'));
+            const content = document.getElementById('genealogyContent');
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Basic Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Coil ID:</strong></td><td>${coil.coilId}</td></tr>
+                            <tr><td><strong>Original Slab:</strong></td><td>${coil.id}</td></tr>
+                            <tr><td><strong>Steel Grade:</strong></td><td>${coil.originalTask.grade}</td></tr>
+                            <tr><td><strong>Width:</strong></td><td>${coil.originalTask.width}mm</td></tr>
+                            <tr><td><strong>Quality Status:</strong></td>
+                                <td><span class="badge ${coil.qualityStatus === 'Qualified' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
+                            </tr>
+                            <tr><td><strong>Finished:</strong></td><td>${coil.finishedTime}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Process History</h6>
+                        <div class="timeline">
+                            ${coil.stageHistory.map(stage => `
+                                <div class="mb-2">
+                                    <small class="text-muted">${stage.timestamp}</small>
+                                    <div><strong>${stage.stage}</strong></div>
+                                    ${Object.entries(stage.data).map(([key, value]) => 
+                                        `<small>${key}: ${value}</small>`
+                                    ).join('<br>')}
+                                </div>
+                            `).join('<hr class="my-2">')}
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Quality Profile</h6>
+                        <canvas id="genealogyChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            modal.show();
+            
+            // Create quality chart after modal is shown
+            setTimeout(() => {
+                createGenealogyChart(coil.qualityData);
+            }, 300);
+        }
+
+        function createGenealogyChart(qualityData) {
+            const ctx = document.getElementById('genealogyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: qualityData.map(d => `T${d.time}`),
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: qualityData.map(d => d.temperature),
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Thickness (mm)',
+                        data: qualityData.map(d => d.thickness),
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========================
+        // MODULE 4: REPORTS & METRICS
+        // ========================
+        
+        function updateMetrics() {
+            document.getElementById('totalProduced').textContent = simulationState.productionMetrics.totalProduced;
+            document.getElementById('slabYardCount').textContent = simulationState.currentTasks.length + simulationState.dispatchedTasks.length;
+            document.getElementById('coilYardCount').textContent = simulationState.finishedCoils.length;
+            
+            // Calculate hourly throughput
+            const currentHour = Math.floor(simulationState.simulationTime / 3600);
+            if (simulationState.productionMetrics.hourlyOutput.length <= currentHour) {
+                simulationState.productionMetrics.hourlyOutput.push(0);
+            }
+            
+            const hourlyRate = simulationState.productionMetrics.totalProduced > 0 ? 
+                Math.floor((simulationState.productionMetrics.totalProduced / (simulationState.simulationTime / 3600)) * 10) / 10 : 0;
+            document.getElementById('currentThroughput').textContent = hourlyRate;
+            
+            // Calculate quality rate
+            const total = simulationState.productionMetrics.qualityStats.qualified + simulationState.productionMetrics.qualityStats.defective;
+            const qualityRate = total > 0 ? Math.floor((simulationState.productionMetrics.qualityStats.qualified / total) * 100) : 0;
+            document.getElementById('qualityRate').textContent = qualityRate + '%';
+        }
+
+        function updateStageData() {
+            // Update furnace data
+            document.getElementById('furnaceTemp').textContent = Math.floor(1200 + Math.random() * 100);
+            document.getElementById('furnaceStatus').textContent = simulationState.activeSlabs.some(s => s.stage === 1) ? 'Heating' : 'Ready';
+            
+            // Update rolling mill data
+            document.getElementById('rollingSpeed').textContent = Math.floor(12 + Math.random() * 8);
+            document.getElementById('rollingForce').textContent = Math.floor(2000 + Math.random() * 1000);
+            
+            // Update coiler data
+            document.getElementById('coilerRpm').textContent = Math.floor(40 + Math.random() * 20);
+            document.getElementById('coilerTension').textContent = Math.floor(150 + Math.random() * 60);
+        }
+
+        function updateProductionTable() {
+            const tableBody = document.getElementById('productionTable');
+            
+            if (simulationState.finishedCoils.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No production data yet</td></tr>';
+                return;
+            }
+            
+            tableBody.innerHTML = simulationState.finishedCoils.slice(-10).reverse().map(coil => `
+                <tr>
+                    <td>${coil.coilId}</td>
+                    <td>${coil.originalTask.grade}</td>
+                    <td><span class="badge ${coil.qualityStatus === 'Qualified' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
+                    <td>${coil.finishedTime}</td>
+                </tr>
+            `).join('');
+        }
+
+        function initializeCharts() {
+            // Quality Chart
+            const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+            charts.quality = new Chart(qualityCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Qualified', 'Defective'],
+                    datasets: [{
+                        data: [95, 5],
+                        backgroundColor: ['#27ae60', '#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Output Chart
+            const outputCtx = document.getElementById('outputChart').getContext('2d');
+            charts.output = new Chart(outputCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Hour 1', 'Hour 2', 'Hour 3', 'Hour 4', 'Hour 5'],
+                    datasets: [{
+                        label: 'Coils Produced',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: '#3498db'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            // Update quality chart
+            const qualified = simulationState.productionMetrics.qualityStats.qualified;
+            const defective = simulationState.productionMetrics.qualityStats.defective;
+            charts.quality.data.datasets[0].data = [qualified, defective];
+            charts.quality.update();
+            
+            // Update output chart
+            const currentHour = Math.floor(simulationState.simulationTime / 3600);
+            if (currentHour < 5) {
+                charts.output.data.datasets[0].data[currentHour] = simulationState.productionMetrics.totalProduced;
+                charts.output.update();
+            }
+        }
+
+        // ========================
+        // UTILITY FUNCTIONS
+        // ========================
+        
+        function showTooltip(event, slabId) {
+            const tooltip = document.getElementById('customTooltip');
+            tooltip.textContent = slabId;
+            tooltip.style.opacity = '1';
+            tooltip.style.left = (event.clientX + 10) + 'px';
+            tooltip.style.top = (event.clientY - 30) + 'px';
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('customTooltip');
+            tooltip.style.opacity = '0';
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-custom position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">${message}</div>
+                    <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // ========================
+        // DEMO DATA POPULATION
+        // ========================
+        
+        function populateDemoData() {
+            // This function can be called to populate with demo data for presentation
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    if (simulationState.dispatchedTasks.length > 0) {
+                        const task = simulationState.dispatchedTasks.shift();
+                        const slab = createSlab(task);
+                        slab.stage = 4; // Fast-forward to completion
+                        finishSlab(slab);
+                    }
+                }, i * 1000);
+            }
+        }
+
+        // Add keyboard shortcuts for demo
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                populateDemoData();
+                showNotification('Demo data populated!', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
