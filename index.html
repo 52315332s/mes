@@ -3,532 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES 互动演示 - 制造执行系统</title>
+    <title>MES 综合信息中心 - 钢铁热轧生产线管控系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary-blue: #2c3e50;
+            --secondary-blue: #3498db;
+            --success-green: #27ae60;
+            --warning-orange: #f39c12;
+            --danger-red: #e74c3c;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .main-container {
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: 60px 1fr 1fr 1fr;
+            gap: 8px;
+            padding: 8px;
+            box-sizing: border-box;
         }
 
         .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
             color: white;
-            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .production-line {
+        .panel {
             background: white;
-            border-radius: 10px;
-            padding: 30px;
-            margin: 20px 0;
+            border-radius: 12px;
+            padding: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
             overflow: hidden;
-            min-height: 300px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .stage {
-            width: 150px;
-            height: 80px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+        .panel-title {
+            font-size: 14px;
             font-weight: bold;
-            margin: 0 20px;
-            position: relative;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--light-gray);
         }
 
-        .stage:hover {
-            transform: translateY(-2px);
-        }
-
-        .stage-slab-yard { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
-        .stage-furnace { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .stage-rolling { background: linear-gradient(135deg, #f39c12, #e67e22); }
-        .stage-coiler { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .stage-coil-yard { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
-
-        .stage-data {
-            position: absolute;
-            bottom: -40px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            font-weight: normal;
-        }
-
-        .production-path {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #bdc3c7, #95a5a6);
-            z-index: 1;
-            border-radius: 2px;
-        }
-
-        .stages-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .slab {
-            width: 40px;
-            height: 20px;
-            background: linear-gradient(135deg, #34495e, #2c3e50);
-            position: absolute;
-            border-radius: 3px;
-            z-index: 3;
-            transition: all 0.5s ease;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .slab.in-furnace {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
-        }
-
-        .slab.coil {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-        }
-
-        .tooltip-custom {
-            position: absolute;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 12px;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .control-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .btn-custom {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            border: none;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn-custom:hover {
-            background: linear-gradient(135deg, #2980b9, #1f5f87);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-optimize {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-        }
-
-        .btn-optimize:hover {
-            background: linear-gradient(135deg, #e67e22, #d35400);
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
-        }
-
-        .btn-dispatch {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-        }
-
-        .btn-dispatch:hover {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
-        }
-
-        .task-list {
-            max-height: 300px;
+        .panel-content {
+            flex: 1;
             overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            background: #fafafa;
         }
 
-        .task-item {
-            background: white;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        /* Panel 1: 生产计划管理 */
+        .panel-planning {
+            grid-column: 1 / 3;
+            grid-row: 2;
+        }
+
+        .planning-table {
+            font-size: 11px;
+        }
+
+        .planning-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm-custom {
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        /* Panel 2: 库区管理 */
+        .panel-yard {
+            grid-column: 3 / 5;
+            grid-row: 2;
+        }
+
+        .yard-section {
+            margin-bottom: 15px;
+        }
+
+        .yard-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+
+        .yard-cell {
+            aspect-ratio: 1;
+            background: var(--light-gray);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
 
-        .task-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        .yard-cell.occupied {
+            background: var(--secondary-blue);
+            color: white;
         }
 
-        .coil-yard {
-            min-height: 100px;
-            border: 2px dashed #bdc3c7;
-            border-radius: 10px;
-            padding: 15px;
+        .yard-cell.finished {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .yard-stats {
+            font-size: 10px;
+            color: var(--dark-gray);
+        }
+
+        /* Panel 3: 物料跟踪 */
+        .panel-tracking {
+            grid-column: 1 / 3;
+            grid-row: 3;
+        }
+
+        .production-line {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: flex-start;
-            align-content: flex-start;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            position: relative;
         }
 
-        .finished-coil {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            cursor: pointer;
+        .stage-box {
+            width: 60px;
+            height: 40px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
         }
 
-        .finished-coil:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        .stage-slab-yard { background: var(--dark-gray); }
+        .stage-furnace { background: var(--danger-red); }
+        .stage-rolling { background: var(--warning-orange); }
+        .stage-coiler { background: var(--success-green); }
+        .stage-coil-yard { background: var(--primary-blue); }
+
+        .material-arrow {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #34495e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8px;
+            transition: all 0.8s ease;
+            z-index: 10;
         }
 
-        .modal-custom {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+        .material-info {
+            font-size: 10px;
+            background: var(--light-gray);
+            padding: 8px;
+            border-radius: 6px;
         }
 
-        .modal-content-custom {
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .material-info table {
+            font-size: 9px;
         }
 
-        .status-indicator {
-            width: 12px;
-            height: 12px;
+        /* Panel 4: 质量管理 */
+        .panel-quality {
+            grid-column: 3;
+            grid-row: 3;
+        }
+
+        .spc-chart-container {
+            height: 120px;
+            margin-bottom: 10px;
+        }
+
+        .quality-log {
+            height: 80px;
+            overflow-y: auto;
+            background: var(--light-gray);
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-family: monospace;
+        }
+
+        .alert-warning { color: var(--warning-orange); }
+        .alert-danger { color: var(--danger-red); }
+        .alert-success { color: var(--success-green); }
+
+        /* Panel 5&6: 设备管理 */
+        .panel-equipment {
+            grid-column: 4;
+            grid-row: 3;
+        }
+
+        .equipment-table {
+            font-size: 10px;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 8px;
+            margin-right: 4px;
         }
 
-        .status-running { background: #2ecc71; }
-        .status-stopped { background: #e74c3c; }
-        .status-warning { background: #f39c12; }
+        .status-running { background: var(--success-green); }
+        .status-idle { background: var(--warning-orange); }
+        .status-fault { background: var(--danger-red); }
 
-        .metric-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px 0;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        /* Panel 7: 能源管理 */
+        .panel-energy {
+            grid-column: 1;
+            grid-row: 4;
+        }
+
+        .energy-gauges {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .gauge {
             text-align: center;
-            transition: transform 0.3s ease;
+            font-size: 10px;
         }
 
-        .metric-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .metric-value {
-            font-size: 2.5rem;
+        .gauge-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            position: relative;
+            font-size: 8px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
         }
 
-        .metric-label {
-            color: #7f8c8d;
-            font-size: 0.9rem;
+        .gauge-power { border-color: var(--danger-red); color: var(--danger-red); }
+        .gauge-gas { border-color: var(--warning-orange); color: var(--warning-orange); }
+        .gauge-water { border-color: var(--secondary-blue); color: var(--secondary-blue); }
+
+        .energy-cost {
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--primary-blue);
         }
 
-        .chart-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        /* Panel 8: 数据采集 */
+        .panel-data {
+            grid-column: 2;
+            grid-row: 4;
+        }
+
+        .system-log {
+            height: 100%;
+            overflow-y: auto;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 1.3;
+        }
+
+        .log-info { color: #3498db; }
+        .log-success { color: #27ae60; }
+        .log-warning { color: #f39c12; }
+        .log-error { color: #e74c3c; }
+
+        /* Panel 9: 生产报表 */
+        .panel-reports {
+            grid-column: 3 / 5;
+            grid-row: 4;
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-card {
+            text-align: center;
+            background: var(--light-gray);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .kpi-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .kpi-label {
+            font-size: 9px;
+            color: var(--dark-gray);
+        }
+
+        .reports-table {
+            font-size: 9px;
         }
 
         .simulation-controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
+        .sim-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger-red);
+        }
+
+        .status-indicator.running {
+            background: var(--success-green);
+            animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        .table-sm th, .table-sm td {
+            padding: 3px 6px;
+            vertical-align: middle;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .badge-sm {
+            font-size: 8px;
+            padding: 2px 6px;
         }
 
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .production-stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-        }
-
-        .table-responsive {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .alert-custom {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        .btn-xs {
+            padding: 2px 8px;
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg navbar-dark">
-                <div class="container-fluid">
-                    <span class="navbar-brand">🏭 MES 互动演示</span>
-                    <div class="d-flex">
-                        <span class="navbar-text">制造执行系统</span>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h4 class="mb-0">🏭 MES 综合信息中心</h4>
+                <small>钢铁热轧生产线制造执行系统</small>
+            </div>
+            <div class="simulation-controls">
+                <div class="sim-status">
+                    <div class="status-indicator" id="simStatus"></div>
+                    <span id="simText">系统停止</span>
+                </div>
+                <button class="btn btn-light btn-sm" id="toggleSim" onclick="toggleSimulation()">
+                    启动系统
+                </button>
+                <div style="color: #bdc3c7; font-size: 12px;">
+                    系统时间: <span id="systemTime">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 1: 生产计划管理 -->
+        <div class="panel panel-planning">
+            <div class="panel-title">📋 生产计划管理</div>
+            <div class="panel-content">
+                <table class="table table-sm planning-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>订单号</th>
+                            <th>物料号</th>
+                            <th>钢种</th>
+                            <th>目标尺寸</th>
+                            <th>计划产出</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planningTable">
+                        <!-- 数据将由JavaScript填充 -->
+                    </tbody>
+                </table>
+                <div class="planning-controls">
+                    <button class="btn btn-primary btn-sm-custom" onclick="optimizeSchedule()">
+                        🔧 一键优化排程
+                    </button>
+                    <button class="btn btn-success btn-sm-custom" onclick="dispatchFirstPlan()" id="dispatchBtn">
+                        🚀 下达首个计划
+                    </button>
+                    <button class="btn btn-secondary btn-sm-custom" onclick="resetPlanning()">
+                        🔄 重置计划
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: 库区管理 -->
+        <div class="panel panel-yard">
+            <div class="panel-title">🏗️ 板坯与钢卷库区管理</div>
+            <div class="panel-content">
+                <div class="yard-section">
+                    <h6 style="font-size: 12px; margin-bottom: 8px;">板坯库 (Slab Yard)</h6>
+                    <div class="yard-grid" id="slabYardGrid">
+                        <!-- 32个存储位 -->
+                    </div>
+                    <div class="yard-stats">
+                        当前库存: <span id="slabStock">15</span> | 总吨位: <span id="slabTonnage">450</span>t
                     </div>
                 </div>
-            </nav>
+                <div class="yard-section">
+                    <h6 style="font-size: 12px; margin-bottom: 8px;">钢卷库 (Coil Yard)</h6>
+                    <div class="yard-grid" id="coilYardGrid">
+                        <!-- 32个存储位 -->
+                    </div>
+                    <div class="yard-stats">
+                        当前库存: <span id="coilStock">0</span> | 总吨位: <span id="coilTonnage">0</span>t
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- 仿真控制 -->
-    <div class="simulation-controls">
-        <div class="d-flex flex-column align-items-center">
-            <span class="status-indicator" id="simulationStatus"></span>
-            <small id="simulationText">已停止</small>
-            <button class="btn btn-sm btn-custom mt-2" onclick="toggleSimulation()">
-                <span id="toggleText">启动</span>
-            </button>
-        </div>
-    </div>
-
-    <div class="container-fluid">
-        <!-- 模块 1: 主仪表板和可视化生产线 -->
-        <div class="row">
-            <div class="col-12">
+        <!-- Panel 3: 物料跟踪管理 -->
+        <div class="panel panel-tracking">
+            <div class="panel-title">📍 物料跟踪管理</div>
+            <div class="panel-content">
                 <div class="production-line">
-                    <h3 class="mb-4">🏭 生产线可视化</h3>
-                    <div class="production-path"></div>
-                    <div class="stages-container">
-                        <div class="stage stage-slab-yard">
-                            <div>
-                                <div>板坯库</div>
-                                <div class="stage-data">
-                                    <div>数量: <span id="slabYardCount">0</span></div>
-                                    <div>温度: 25°C</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stage stage-furnace">
-                            <div>
-                                <div>加热炉</div>
-                                <div class="stage-data">
-                                    <div>温度: <span id="furnaceTemp">1250</span>°C</div>
-                                    <div>状态: <span id="furnaceStatus">就绪</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stage stage-rolling">
-                            <div>
-                                <div>轧机</div>
-                                <div class="stage-data">
-                                    <div>速度: <span id="rollingSpeed">15</span> m/s</div>
-                                    <div>压力: <span id="rollingForce">2500</span> kN</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stage stage-coiler">
-                            <div>
-                                <div>卷取机</div>
-                                <div class="stage-data">
-                                    <div>转速: <span id="coilerRpm">45</span> RPM</div>
-                                    <div>张力: <span id="coilerTension">180</span> MPa</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stage stage-coil-yard">
-                            <div>
-                                <div>钢卷库</div>
-                                <div class="stage-data">
-                                    <div>数量: <span id="coilYardCount">0</span></div>
-                                    <div>容量: 100</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="stage-box stage-slab-yard">库区</div>
+                    <div class="stage-box stage-furnace">加热炉</div>
+                    <div class="stage-box stage-rolling">轧机</div>
+                    <div class="stage-box stage-coiler">卷取机</div>
+                    <div class="stage-box stage-coil-yard">钢卷库</div>
+                    <div class="material-arrow" id="materialPosition">M</div>
+                </div>
+                <div class="material-info">
+                    <h6 style="font-size: 11px; margin-bottom: 8px;">当前在制产品信息</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>物料号:</strong></td><td id="currentMaterialId">--</td></tr>
+                        <tr><td><strong>钢种:</strong></td><td id="currentGrade">--</td></tr>
+                        <tr><td><strong>目标温度:</strong></td><td id="targetTemp">--</td></tr>
+                        <tr><td><strong>当前温度:</strong></td><td id="currentTemp">--</td></tr>
+                        <tr><td><strong>目标厚度:</strong></td><td id="targetThickness">--</td></tr>
+                        <tr><td><strong>当前厚度:</strong></td><td id="currentThickness">--</td></tr>
+                        <tr><td><strong>当前位置:</strong></td><td id="currentPosition">--</td></tr>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- 模块 2: 生产计划与调度 -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h4 class="mb-3">📋 生产计划</h4>
-                    <div class="d-flex gap-2 mb-3">
-                        <button class="btn btn-optimize" onclick="optimizeSchedule()">
-                            🔧 优化排程
-                        </button>
-                        <button class="btn btn-dispatch" onclick="dispatchPlan()" id="dispatchBtn">
-                            🚀 下达计划
-                        </button>
-                        <button class="btn btn-custom" onclick="resetSchedule()">
-                            🔄 重置
-                        </button>
-                    </div>
-                    <div class="task-list" id="taskList">
-                        <!-- 任务将由JavaScript填充 -->
-                    </div>
+        <!-- Panel 4: 质量管理 -->
+        <div class="panel panel-quality">
+            <div class="panel-title">📊 质量管理</div>
+            <div class="panel-content">
+                <div class="spc-chart-container">
+                    <canvas id="spcChart" width="100" height="60"></canvas>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h4 class="mb-3">📊 生产指标</h4>
-                    <div class="production-stats">
-                        <div class="metric-card">
-                            <div class="metric-value" id="totalProduced">0</div>
-                            <div class="metric-label">总产量</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-value" id="currentThroughput">0</div>
-                            <div class="metric-label">每小时产量</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-value" id="qualityRate">0%</div>
-                            <div class="metric-label">合格率</div>
-                        </div>
-                    </div>
+                <h6 style="font-size: 10px; margin-bottom: 5px;">质量报警日志</h6>
+                <div class="quality-log" id="qualityLog">
+                    <div class="alert-success">[信息] 系统启动完成</div>
                 </div>
             </div>
         </div>
 
-        <!-- 模块 3: 钢卷库 & 模块 4: 报表仪表板 -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h4 class="mb-3">🏗️ 成品钢卷库</h4>
-                    <div class="coil-yard" id="coilYard">
-                        <div style="width: 100%; text-align: center; color: #95a5a6; padding: 20px;">
-                            暂无成品钢卷。启动生产以查看结果。
+        <!-- Panel 5&6: 设备与轧辊管理 -->
+        <div class="panel panel-equipment">
+            <div class="panel-title">⚙️ 设备与轧辊管理</div>
+            <div class="panel-content">
+                <h6 style="font-size: 11px; margin-bottom: 8px;">关键设备状态</h6>
+                <table class="table table-sm equipment-table">
+                    <thead>
+                        <tr><th>设备</th><th>状态</th><th>运行时长</th><th>负载</th></tr>
+                    </thead>
+                    <tbody id="equipmentTable">
+                        <!-- 数据将由JavaScript填充 -->
+                    </tbody>
+                </table>
+                <h6 style="font-size: 11px; margin-bottom: 8px;">当前在役轧辊</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>机架号</th><th>轧辊ID</th><th>装机时间</th><th>已过钢量(t)</th></tr>
+                    </thead>
+                    <tbody id="rollTable">
+                        <!-- 数据将由JavaScript填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel 7: 能源消耗管理 -->
+        <div class="panel panel-energy">
+            <div class="panel-title">⚡ 能源消耗管理</div>
+            <div class="panel-content">
+                <div class="energy-gauges">
+                    <div class="gauge">
+                        <div class="gauge-circle gauge-power">
+                            <span id="powerValue">25</span>
                         </div>
+                        <div>总功率 (MW)</div>
+                    </div>
+                    <div class="gauge">
+                        <div class="gauge-circle gauge-gas">
+                            <span id="gasValue">15k</span>
+                        </div>
+                        <div>煤气流量</div>
+                    </div>
+                    <div class="gauge">
+                        <div class="gauge-circle gauge-water">
+                            <span id="waterValue">800</span>
+                        </div>
+                        <div>循环水流量</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h4 class="mb-3">📈 生产报表</h4>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>钢卷编号</th>
-                                    <th>钢种</th>
-                                    <th>状态</th>
-                                    <th>完成时间</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productionTable">
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">暂无生产数据</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="energy-cost">
+                    本班次能源成本<br>
+                    ¥ <span id="energyCost">150,345</span>
                 </div>
             </div>
         </div>
 
-        <!-- 图表区域 -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5>质量分布</h5>
-                    <canvas id="qualityChart" width="400" height="200"></canvas>
+        <!-- Panel 8: 数据采集 -->
+        <div class="panel panel-data">
+            <div class="panel-title">🔌 数据采集</div>
+            <div class="panel-content">
+                <div class="system-log" id="systemLog">
+                    <div class="log-info">[INFO] MES系统初始化完成</div>
+                    <div class="log-success">[CONNECT] 数据库连接正常</div>
+                    <div class="log-info">[INFO] OPC-UA服务器就绪</div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5>小时产量</h5>
-                    <canvas id="outputChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Panel 9: 生产统计报表 -->
+        <div class="panel panel-reports">
+            <div class="panel-title">📈 生产统计报表</div>
+            <div class="panel-content">
+                <div class="kpi-section">
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="yieldRate">97.5%</div>
+                        <div class="kpi-label">成材率</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="oeeRate">85%</div>
+                        <div class="kpi-label">设备综合效率</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="planAdherence">99%</div>
+                        <div class="kpi-label">计划完成率</div>
+                    </div>
                 </div>
+                <table class="table table-sm reports-table">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>钢卷ID</th>
+                            <th>重量(t)</th>
+                            <th>尺寸</th>
+                            <th>完成时间</th>
+                            <th>质量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTable">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">暂无完成产品</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-    <!-- 产品谱系模态框 -->
-    <div class="modal fade modal-custom" id="genealogyModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content modal-content-custom">
-                <div class="modal-header">
-                    <h5 class="modal-title">🔍 产品谱系与质量追溯</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="genealogyContent">
-                        <!-- 内容将由JavaScript填充 -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 工具提示 -->
-    <div class="tooltip-custom" id="customTooltip"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -536,677 +623,679 @@
         // 全局状态管理
         // ========================
         
-        let simulationState = {
-            isRunning: false,
-            currentTasks: [],
-            dispatchedTasks: [],
-            activeSlabs: [],
-            finishedCoils: [],
-            simulationTime: 0,
-            productionMetrics: {
-                totalProduced: 0,
-                hourlyOutput: [],
-                qualityStats: { qualified: 0, defective: 0 }
+        let mesState = {
+            simulation: {
+                isRunning: false,
+                time: 0,
+                interval: null
+            },
+            
+            production: {
+                plans: [
+                    { orderId: 'ORD-2024-001', materialId: 'SLAB-001', grade: 'Q235B', targetSize: '1500×3.0', dueTime: '14:30', status: '待排程' },
+                    { orderId: 'ORD-2024-002', materialId: 'SLAB-002', grade: 'Q345', targetSize: '1200×2.5', dueTime: '15:15', status: '待排程' },
+                    { orderId: 'ORD-2024-003', materialId: 'SLAB-003', grade: 'SS400', targetSize: '1800×4.0', dueTime: '16:00', status: '待排程' },
+                    { orderId: 'ORD-2024-004', materialId: 'SLAB-004', grade: 'Q235B', targetSize: '1000×2.0', dueTime: '16:45', status: '待排程' },
+                    { orderId: 'ORD-2024-005', materialId: 'SLAB-005', grade: 'Q345', targetSize: '1600×3.5', dueTime: '17:30', status: '待排程' },
+                    { orderId: 'ORD-2024-006', materialId: 'SLAB-006', grade: 'SS400', targetSize: '1400×2.8', dueTime: '18:15', status: '待排程' },
+                    { orderId: 'ORD-2024-007', materialId: 'SLAB-007', grade: 'Q235B', targetSize: '1100×2.2', dueTime: '19:00', status: '待排程' }
+                ],
+                currentMaterial: null,
+                completedCoils: []
+            },
+            
+            yards: {
+                slabYard: Array(32).fill(null).map((_, i) => i < 15 ? `S${String(i+1).padStart(3, '0')}` : null),
+                coilYard: Array(32).fill(null),
+                slabStock: 15,
+                slabTonnage: 450,
+                coilStock: 0,
+                coilTonnage: 0
+            },
+            
+            equipment: {
+                furnace: { status: 'idle', uptime: 245, load: 0, temp: 1250 },
+                rollingMill: { status: 'idle', uptime: 238, load: 0, speed: 0, force: 0 },
+                coiler: { status: 'idle', uptime: 252, load: 0, rpm: 0, tension: 0 },
+                rolls: [
+                    { standNo: 'F1', rollId: 'R1-2024-A', installTime: '2024-06-20 08:00', tonnage: 125.5 },
+                    { standNo: 'F2', rollId: 'R2-2024-B', installTime: '2024-06-20 08:00', tonnage: 125.5 },
+                    { standNo: 'F3', rollId: 'R3-2024-C', installTime: '2024-06-21 14:30', tonnage: 68.2 },
+                    { standNo: 'F4', rollId: 'R4-2024-D', installTime: '2024-06-21 14:30', tonnage: 68.2 }
+                ]
+            },
+            
+            energy: {
+                power: 25,
+                gasFlow: 15000,
+                waterFlow: 800,
+                totalCost: 150345
+            },
+            
+            quality: {
+                spcData: [],
+                alerts: [],
+                qualifiedCount: 0,
+                defectiveCount: 0
+            },
+            
+            dataAcquisition: {
+                logs: [
+                    { time: '14:00:00', type: 'info', message: 'MES系统初始化完成' },
+                    { time: '14:00:01', type: 'success', message: '数据库连接正常' },
+                    { time: '14:00:02', type: 'info', message: 'OPC-UA服务器就绪' }
+                ]
             }
         };
 
-        let simulationInterval = null;
         let charts = {};
-
-        // 初始生产任务
-        const initialTasks = [
-            { id: '板坯-001', grade: 'Q235', width: 1500, thickness: 250, length: 12000 },
-            { id: '板坯-002', grade: 'Q345', width: 1200, thickness: 200, length: 10000 },
-            { id: '板坯-003', grade: 'Q235', width: 1800, thickness: 300, length: 15000 },
-            { id: '板坯-004', grade: 'SS400', width: 1000, thickness: 180, length: 8000 },
-            { id: '板坯-005', grade: 'Q345', width: 1600, thickness: 220, length: 11000 },
-            { id: '板坯-006', grade: 'Q235', width: 1400, thickness: 280, length: 13000 },
-            { id: '板坯-007', grade: 'SS400', width: 1100, thickness: 160, length: 9000 },
-            { id: '板坯-008', grade: 'Q345', width: 1700, thickness: 240, length: 14000 }
-        ];
-
-        // 生产阶段配置
-        const stagePositions = [
-            { name: 'slabYard', x: 75 },
-            { name: 'furnace', x: 245 },
-            { name: 'rolling', x: 415 },
-            { name: 'coiler', x: 585 },
-            { name: 'coilYard', x: 755 }
-        ];
 
         // ========================
         // 初始化
         // ========================
         
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApplication();
+            initializeSystem();
         });
 
-        function initializeApplication() {
-            simulationState.currentTasks = [...initialTasks];
-            updateTaskList();
-            updateSimulationStatus();
-            initializeCharts();
-            setupEventListeners();
-            updateMetrics();
+        function initializeSystem() {
+            updateSystemTime();
+            initializeYardGrids();
+            updatePlanningTable();
+            updateEquipmentTable();
+            updateRollTable();
+            initializeSPCChart();
+            updateAllPanels();
+            
+            // 启动时间更新
+            setInterval(updateSystemTime, 1000);
         }
 
-        function setupEventListeners() {
-            // 工具提示功能
-            document.addEventListener('mousemove', function(e) {
-                const tooltip = document.getElementById('customTooltip');
-                if (tooltip.style.opacity === '1') {
-                    tooltip.style.left = (e.clientX + 10) + 'px';
-                    tooltip.style.top = (e.clientY - 30) + 'px';
-                }
-            });
+        function updateSystemTime() {
+            const now = new Date();
+            document.getElementById('systemTime').textContent = now.toLocaleTimeString();
         }
 
         // ========================
-        // 模块 2: 生产计划
+        // Panel 1: 生产计划管理
         // ========================
         
-        function updateTaskList() {
-            const taskList = document.getElementById('taskList');
-            if (simulationState.currentTasks.length === 0) {
-                taskList.innerHTML = '<div class="text-center text-muted">无可用任务</div>';
-                return;
-            }
-
-            taskList.innerHTML = simulationState.currentTasks.map(task => `
-                <div class="task-item fade-in">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${task.id}</strong>
-                            <div class="small text-muted">钢种: ${task.grade} | 宽度: ${task.width}mm</div>
-                        </div>
-                        <div class="text-end">
-                            <div class="small">长度: ${task.length}mm</div>
-                            <div class="small">厚度: ${task.thickness}mm</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function optimizeSchedule() {
-            // 优化算法：先按钢种排序，再按宽度排序
-            simulationState.currentTasks.sort((a, b) => {
-                if (a.grade !== b.grade) {
-                    return a.grade.localeCompare(b.grade);
-                }
-                return a.width - b.width;
-            });
-            
-            updateTaskList();
-            showNotification('计划优化成功！', 'success');
-        }
-
-        function dispatchPlan() {
-            if (simulationState.currentTasks.length === 0) {
-                showNotification('没有可下达的任务！', 'warning');
-                return;
-            }
-
-            simulationState.dispatchedTasks = [...simulationState.currentTasks];
-            simulationState.currentTasks = [];
-            updateTaskList();
-            
-            showNotification(`成功下达 ${simulationState.dispatchedTasks.length} 个任务！`, 'success');
-            
-            if (!simulationState.isRunning) {
-                toggleSimulation();
-            }
-        }
-
-        function resetSchedule() {
-            simulationState.currentTasks = [...initialTasks];
-            simulationState.dispatchedTasks = [];
-            updateTaskList();
-            showNotification('计划已重置为初始状态', 'info');
-        }
-
-        // ========================
-        // 模块 1: 仿真引擎
-        // ========================
-        
-        function toggleSimulation() {
-            if (simulationState.isRunning) {
-                stopSimulation();
-            } else {
-                startSimulation();
-            }
-            updateSimulationStatus();
-        }
-
-        function startSimulation() {
-            if (simulationState.dispatchedTasks.length === 0) {
-                showNotification('请先下达生产计划！', 'warning');
-                return;
-            }
-            
-            simulationState.isRunning = true;
-            simulationInterval = setInterval(simulationTick, 2000);
-            showNotification('生产仿真已启动', 'success');
-        }
-
-        function stopSimulation() {
-            simulationState.isRunning = false;
-            if (simulationInterval) {
-                clearInterval(simulationInterval);
-                simulationInterval = null;
-            }
-            showNotification('生产仿真已停止', 'info');
-        }
-
-        function updateSimulationStatus() {
-            const statusIndicator = document.getElementById('simulationStatus');
-            const statusText = document.getElementById('simulationText');
-            const toggleText = document.getElementById('toggleText');
-            
-            if (simulationState.isRunning) {
-                statusIndicator.className = 'status-indicator status-running pulse';
-                statusText.textContent = '运行中';
-                toggleText.textContent = '停止';
-            } else {
-                statusIndicator.className = 'status-indicator status-stopped';
-                statusText.textContent = '已停止';
-                toggleText.textContent = '启动';
-            }
-        }
-
-        function simulationTick() {
-            simulationState.simulationTime += 2;
-            
-            // 根据需要引入新板坯
-            introduceNewSlab();
-            
-            // 更新现有板坯
-            updateActiveSlabs();
-            
-            // 更新工段数据
-            updateStageData();
-            
-            // 更新指标
-            updateMetrics();
-            
-            // 更新图表
-            updateCharts();
-        }
-
-        function introduceNewSlab() {
-            if (simulationState.dispatchedTasks.length > 0 && 
-                (simulationState.activeSlabs.length === 0 || 
-                 simulationState.activeSlabs[simulationState.activeSlabs.length - 1].stage > 0)) {
-                
-                const task = simulationState.dispatchedTasks.shift();
-                const slab = createSlab(task);
-                simulationState.activeSlabs.push(slab);
-                renderSlab(slab);
-            }
-        }
-
-        function createSlab(task) {
-            return {
-                id: task.id,
-                originalTask: task,
-                stage: 0, // 0: 板坯库, 1: 加热炉, 2: 轧机, 3: 卷取机, 4: 钢卷库
-                position: stagePositions[0].x,
-                startTime: simulationState.simulationTime,
-                stageHistory: [{
-                    stage: '板坯库',
-                    timestamp: new Date().toLocaleTimeString(),
-                    data: { temperature: 25, status: '就绪' }
-                }],
-                qualityData: generateQualityData()
-            };
-        }
-
-        function generateQualityData() {
-            const data = [];
-            for (let i = 0; i < 10; i++) {
-                data.push({
-                    time: i,
-                    temperature: 1250 + Math.random() * 100 - 50,
-                    thickness: 2.5 + Math.random() * 0.5 - 0.25
-                });
-            }
-            return data;
-        }
-
-        function updateActiveSlabs() {
-            simulationState.activeSlabs.forEach(slab => {
-                if (slab.stage < 4) {
-                    // 移动到下一工段
-                    slab.stage++;
-                    slab.position = stagePositions[slab.stage].x;
-                    
-                    // 记录工段历史
-                    const stageNames = ['板坯库', '加热炉', '轧机', '卷取机', '钢卷库'];
-                    slab.stageHistory.push({
-                        stage: stageNames[slab.stage],
-                        timestamp: new Date().toLocaleTimeString(),
-                        data: generateStageData(slab.stage)
-                    });
-                    
-                    // 更新板坯外观
-                    updateSlabAppearance(slab);
-                    
-                    // 检查是否完成
-                    if (slab.stage === 4) {
-                        finishSlab(slab);
-                    }
-                }
-            });
-            
-            // 从活动列表中移除已完成的板坯
-            simulationState.activeSlabs = simulationState.activeSlabs.filter(slab => slab.stage < 4);
-        }
-
-        function generateStageData(stage) {
-            switch(stage) {
-                case 1: // 加热炉
-                    return { 
-                        temperature: Math.floor(1200 + Math.random() * 100),
-                        status: '加热中'
-                    };
-                case 2: // 轧机
-                    return {
-                        speed: Math.floor(12 + Math.random() * 8),
-                        force: Math.floor(2000 + Math.random() * 1000)
-                    };
-                case 3: // 卷取机
-                    return {
-                        rpm: Math.floor(40 + Math.random() * 20),
-                        tension: Math.floor(150 + Math.random() * 60)
-                    };
-                default:
-                    return {};
-            }
-        }
-
-        function renderSlab(slab) {
-            const productionLine = document.querySelector('.production-line');
-            const slabElement = document.createElement('div');
-            slabElement.className = 'slab';
-            slabElement.id = `slab-${slab.id}`;
-            slabElement.style.left = slab.position + 'px';
-            slabElement.style.top = '50%';
-            slabElement.style.transform = 'translateY(-50%)';
-            
-            // 添加悬停事件
-            slabElement.addEventListener('mouseenter', function(e) {
-                showTooltip(e, slab.id);
-            });
-            
-            slabElement.addEventListener('mouseleave', function() {
-                hideTooltip();
-            });
-            
-            productionLine.appendChild(slabElement);
-        }
-
-        function updateSlabAppearance(slab) {
-            const slabElement = document.getElementById(`slab-${slab.id}`);
-            if (!slabElement) return;
-            
-            // 更新位置
-            slabElement.style.left = slab.position + 'px';
-            
-            // 根据工段更新外观
-            slabElement.className = 'slab';
-            if (slab.stage === 1) {
-                slabElement.classList.add('in-furnace');
-            } else if (slab.stage >= 3) {
-                slabElement.classList.add('coil');
-            }
-        }
-
-        function finishSlab(slab) {
-            // 从生产线上移除
-            const slabElement = document.getElementById(`slab-${slab.id}`);
-            if (slabElement) {
-                slabElement.remove();
-            }
-            
-            // 创建成品钢卷
-            const coil = {
-                ...slab,
-                coilId: `钢卷-${slab.id.split('-')[1]}`,
-                finishedTime: new Date().toLocaleTimeString(),
-                qualityStatus: Math.random() > 0.1 ? '合格' : '不合格'
-            };
-            
-            simulationState.finishedCoils.push(coil);
-            
-            // 更新指标
-            simulationState.productionMetrics.totalProduced++;
-            if (coil.qualityStatus === '合格') {
-                simulationState.productionMetrics.qualityStats.qualified++;
-            } else {
-                simulationState.productionMetrics.qualityStats.defective++;
-            }
-            
-            // 在钢卷库中渲染
-            renderFinishedCoil(coil);
-            
-            // 更新生产表格
-            updateProductionTable();
-        }
-
-        function renderFinishedCoil(coil) {
-            const coilYard = document.getElementById('coilYard');
-            
-            // 如果这是第一个钢卷，清除占位符
-            if (simulationState.finishedCoils.length === 1) {
-                coilYard.innerHTML = '';
-            }
-            
-            const coilElement = document.createElement('div');
-            coilElement.className = 'finished-coil fade-in';
-            coilElement.textContent = coil.coilId.split('-')[1];
-            coilElement.title = `点击查看详情: ${coil.coilId}`;
-            
-            if (coil.qualityStatus === '不合格') {
-                coilElement.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-            }
-            
-            coilElement.addEventListener('click', function() {
-                showGenealogyModal(coil);
-            });
-            
-            coilYard.appendChild(coilElement);
-        }
-
-        // ========================
-        // 模块 3: 产品谱系
-        // ========================
-        
-        function showGenealogyModal(coil) {
-            const modal = new bootstrap.Modal(document.getElementById('genealogyModal'));
-            const content = document.getElementById('genealogyContent');
-            
-            content.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>基本信息</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>钢卷编号:</strong></td><td>${coil.coilId}</td></tr>
-                            <tr><td><strong>原始板坯:</strong></td><td>${coil.id}</td></tr>
-                            <tr><td><strong>钢种牌号:</strong></td><td>${coil.originalTask.grade}</td></tr>
-                            <tr><td><strong>宽度:</strong></td><td>${coil.originalTask.width}mm</td></tr>
-                            <tr><td><strong>质量状态:</strong></td>
-                                <td><span class="badge ${coil.qualityStatus === '合格' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
-                            </tr>
-                            <tr><td><strong>完成时间:</strong></td><td>${coil.finishedTime}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>工艺历程</h6>
-                        <div class="timeline">
-                            ${coil.stageHistory.map(stage => `
-                                <div class="mb-2">
-                                    <small class="text-muted">${stage.timestamp}</small>
-                                    <div><strong>${stage.stage}</strong></div>
-                                    ${Object.entries(stage.data).map(([key, value]) => 
-                                        `<small>${getChineseLabel(key)}: ${value}</small>`
-                                    ).join('<br>')}
-                                </div>
-                            `).join('<hr class="my-2">')}
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6>质量曲线</h6>
-                        <canvas id="genealogyChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-            `;
-            
-            modal.show();
-            
-            // 模态框显示后创建质量图表
-            setTimeout(() => {
-                createGenealogyChart(coil.qualityData);
-            }, 300);
-        }
-
-        function getChineseLabel(key) {
-            const labels = {
-                'temperature': '温度',
-                'status': '状态',
-                'speed': '速度',
-                'force': '压力',
-                'rpm': '转速',
-                'tension': '张力'
-            };
-            return labels[key] || key;
-        }
-
-        function createGenealogyChart(qualityData) {
-            const ctx = document.getElementById('genealogyChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: qualityData.map(d => `T${d.time}`),
-                    datasets: [{
-                        label: '温度 (°C)',
-                        data: qualityData.map(d => d.temperature),
-                        borderColor: 'rgb(231, 76, 60)',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        yAxisID: 'y'
-                    }, {
-                        label: '厚度 (mm)',
-                        data: qualityData.map(d => d.thickness),
-                        borderColor: 'rgb(52, 152, 219)',
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        yAxisID: 'y1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: {
-                                drawOnChartArea: false,
-                            },
-                        }
-                    }
-                }
-            });
-        }
-
-        // ========================
-        // 模块 4: 报表与指标
-        // ========================
-        
-        function updateMetrics() {
-            document.getElementById('totalProduced').textContent = simulationState.productionMetrics.totalProduced;
-            document.getElementById('slabYardCount').textContent = simulationState.currentTasks.length + simulationState.dispatchedTasks.length;
-            document.getElementById('coilYardCount').textContent = simulationState.finishedCoils.length;
-            
-            // 计算小时产量
-            const currentHour = Math.floor(simulationState.simulationTime / 3600);
-            if (simulationState.productionMetrics.hourlyOutput.length <= currentHour) {
-                simulationState.productionMetrics.hourlyOutput.push(0);
-            }
-            
-            const hourlyRate = simulationState.productionMetrics.totalProduced > 0 ? 
-                Math.floor((simulationState.productionMetrics.totalProduced / (simulationState.simulationTime / 3600)) * 10) / 10 : 0;
-            document.getElementById('currentThroughput').textContent = hourlyRate;
-            
-            // 计算合格率
-            const total = simulationState.productionMetrics.qualityStats.qualified + simulationState.productionMetrics.qualityStats.defective;
-            const qualityRate = total > 0 ? Math.floor((simulationState.productionMetrics.qualityStats.qualified / total) * 100) : 0;
-            document.getElementById('qualityRate').textContent = qualityRate + '%';
-        }
-
-        function updateStageData() {
-            // 更新加热炉数据
-            document.getElementById('furnaceTemp').textContent = Math.floor(1200 + Math.random() * 100);
-            document.getElementById('furnaceStatus').textContent = simulationState.activeSlabs.some(s => s.stage === 1) ? '加热中' : '就绪';
-            
-            // 更新轧机数据
-            document.getElementById('rollingSpeed').textContent = Math.floor(12 + Math.random() * 8);
-            document.getElementById('rollingForce').textContent = Math.floor(2000 + Math.random() * 1000);
-            
-            // 更新卷取机数据
-            document.getElementById('coilerRpm').textContent = Math.floor(40 + Math.random() * 20);
-            document.getElementById('coilerTension').textContent = Math.floor(150 + Math.random() * 60);
-        }
-
-        function updateProductionTable() {
-            const tableBody = document.getElementById('productionTable');
-            
-            if (simulationState.finishedCoils.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">暂无生产数据</td></tr>';
-                return;
-            }
-            
-            tableBody.innerHTML = simulationState.finishedCoils.slice(-10).reverse().map(coil => `
+        function updatePlanningTable() {
+            const tbody = document.getElementById('planningTable');
+            tbody.innerHTML = mesState.production.plans.map(plan => `
                 <tr>
-                    <td>${coil.coilId}</td>
-                    <td>${coil.originalTask.grade}</td>
-                    <td><span class="badge ${coil.qualityStatus === '合格' ? 'bg-success' : 'bg-danger'}">${coil.qualityStatus}</span></td>
-                    <td>${coil.finishedTime}</td>
+                    <td>${plan.orderId}</td>
+                    <td>${plan.materialId}</td>
+                    <td>${plan.grade}</td>
+                    <td>${plan.targetSize}</td>
+                    <td>${plan.dueTime}</td>
+                    <td>
+                        <span class="badge badge-sm ${getStatusBadgeClass(plan.status)}">${plan.status}</span>
+                    </td>
                 </tr>
             `).join('');
         }
 
-        function initializeCharts() {
-            // 质量图表
-            const qualityCtx = document.getElementById('qualityChart').getContext('2d');
-            charts.quality = new Chart(qualityCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['合格', '不合格'],
-                    datasets: [{
-                        data: [95, 5],
-                        backgroundColor: ['#27ae60', '#e74c3c']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case '待排程': return 'bg-secondary';
+                case '已排程': return 'bg-primary';
+                case '生产中': return 'bg-warning';
+                case '已完成': return 'bg-success';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function optimizeSchedule() {
+            // 按钢种排序优化
+            mesState.production.plans = mesState.production.plans.filter(p => p.status === '待排程')
+                .sort((a, b) => a.grade.localeCompare(b.grade))
+                .map(p => ({ ...p, status: '已排程' }))
+                .concat(mesState.production.plans.filter(p => p.status !== '待排程'));
+            
+            updatePlanningTable();
+            addDataLog('success', '生产计划优化完成');
+        }
+
+        function dispatchFirstPlan() {
+            const scheduledPlan = mesState.production.plans.find(p => p.status === '已排程');
+            if (!scheduledPlan) {
+                addDataLog('warning', '没有已排程的计划可以下达');
+                return;
+            }
+            
+            scheduledPlan.status = '生产中';
+            mesState.production.currentMaterial = {
+                ...scheduledPlan,
+                stage: 0, // 0: 库区, 1: 加热炉, 2: 轧机, 3: 卷取机, 4: 完成
+                currentTemp: 25,
+                currentThickness: 250,
+                targetTemp: 1250,
+                targetThickness: parseFloat(scheduledPlan.targetSize.split('×')[1])
+            };
+            
+            updatePlanningTable();
+            addDataLog('success', `下达生产计划: ${scheduledPlan.materialId}`);
+            
+            if (!mesState.simulation.isRunning) {
+                toggleSimulation();
+            }
+        }
+
+        function resetPlanning() {
+            mesState.production.plans.forEach(p => {
+                if (p.status !== '已完成') {
+                    p.status = '待排程';
                 }
             });
+            mesState.production.currentMaterial = null;
+            updatePlanningTable();
+            updateTrackingPanel();
+            addDataLog('info', '生产计划已重置');
+        }
+
+        // ========================
+        // Panel 2: 库区管理
+        // ========================
+        
+        function initializeYardGrids() {
+            const slabGrid = document.getElementById('slabYardGrid');
+            const coilGrid = document.getElementById('coilYardGrid');
             
-            // 产量图表
-            const outputCtx = document.getElementById('outputChart').getContext('2d');
-            charts.output = new Chart(outputCtx, {
-                type: 'bar',
+            // 板坯库网格
+            for (let i = 0; i < 32; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'yard-cell';
+                cell.id = `slab-cell-${i}`;
+                if (mesState.yards.slabYard[i]) {
+                    cell.classList.add('occupied');
+                    cell.textContent = mesState.yards.slabYard[i];
+                }
+                slabGrid.appendChild(cell);
+            }
+            
+            // 钢卷库网格
+            for (let i = 0; i < 32; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'yard-cell';
+                cell.id = `coil-cell-${i}`;
+                coilGrid.appendChild(cell);
+            }
+            
+            updateYardStats();
+        }
+
+        function updateYardStats() {
+            document.getElementById('slabStock').textContent = mesState.yards.slabStock;
+            document.getElementById('slabTonnage').textContent = mesState.yards.slabTonnage;
+            document.getElementById('coilStock').textContent = mesState.yards.coilStock;
+            document.getElementById('coilTonnage').textContent = mesState.yards.coilTonnage;
+        }
+
+        function addCoilToYard(coilId) {
+            const emptyIndex = mesState.yards.coilYard.findIndex(cell => cell === null);
+            if (emptyIndex !== -1) {
+                mesState.yards.coilYard[emptyIndex] = coilId;
+                const cell = document.getElementById(`coil-cell-${emptyIndex}`);
+                cell.classList.add('finished');
+                cell.textContent = coilId.split('-')[1];
+                
+                mesState.yards.coilStock++;
+                mesState.yards.coilTonnage += Math.round(Math.random() * 50 + 150); // 150-200t
+                updateYardStats();
+            }
+        }
+
+        // ========================
+        // Panel 3: 物料跟踪管理
+        // ========================
+        
+        function updateTrackingPanel() {
+            const material = mesState.production.currentMaterial;
+            const materialPos = document.getElementById('materialPosition');
+            
+            if (!material) {
+                materialPos.style.display = 'none';
+                document.getElementById('currentMaterialId').textContent = '--';
+                document.getElementById('currentGrade').textContent = '--';
+                document.getElementById('targetTemp').textContent = '--';
+                document.getElementById('currentTemp').textContent = '--';
+                document.getElementById('targetThickness').textContent = '--';
+                document.getElementById('currentThickness').textContent = '--';
+                document.getElementById('currentPosition').textContent = '--';
+                return;
+            }
+            
+            materialPos.style.display = 'flex';
+            
+            // 更新位置
+            const positions = ['7%', '27%', '47%', '67%', '87%'];
+            materialPos.style.left = positions[material.stage];
+            
+            // 更新信息
+            document.getElementById('currentMaterialId').textContent = material.materialId;
+            document.getElementById('currentGrade').textContent = material.grade;
+            document.getElementById('targetTemp').textContent = material.targetTemp + '℃';
+            document.getElementById('currentTemp').textContent = material.currentTemp + '℃';
+            document.getElementById('targetThickness').textContent = material.targetThickness + 'mm';
+            document.getElementById('currentThickness').textContent = material.currentThickness + 'mm';
+            
+            const positions_cn = ['板坯库', '加热炉', '轧机', '卷取机', '钢卷库'];
+            document.getElementById('currentPosition').textContent = positions_cn[material.stage];
+        }
+
+        // ========================
+        // Panel 4: 质量管理
+        // ========================
+        
+        function initializeSPCChart() {
+            const ctx = document.getElementById('spcChart').getContext('2d');
+            charts.spc = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: ['第1小时', '第2小时', '第3小时', '第4小时', '第5小时'],
+                    labels: [],
                     datasets: [{
-                        label: '钢卷产量',
-                        data: [0, 0, 0, 0, 0],
-                        backgroundColor: '#3498db'
+                        label: '精轧出口温度',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 1,
+                        pointRadius: 2
+                    }, {
+                        label: '上控制限',
+                        data: [],
+                        borderColor: '#e74c3c',
+                        borderDash: [5, 5],
+                        borderWidth: 1,
+                        pointRadius: 0
+                    }, {
+                        label: '下控制限',
+                        data: [],
+                        borderColor: '#e74c3c',
+                        borderDash: [5, 5],
+                        borderWidth: 1,
+                        pointRadius: 0
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: '精轧出口温度SPC监控',
+                            font: { size: 10 }
+                        }
+                    },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            min: 800,
+                            max: 1000,
+                            ticks: { font: { size: 8 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 8 } }
                         }
                     }
                 }
             });
         }
 
-        function updateCharts() {
-            // 更新质量图表
-            const qualified = simulationState.productionMetrics.qualityStats.qualified;
-            const defective = simulationState.productionMetrics.qualityStats.defective;
-            charts.quality.data.datasets[0].data = [qualified, defective];
-            charts.quality.update();
+        function updateSPCChart() {
+            if (!charts.spc) return;
             
-            // 更新产量图表
-            const currentHour = Math.floor(simulationState.simulationTime / 3600);
-            if (currentHour < 5) {
-                charts.output.data.datasets[0].data[currentHour] = simulationState.productionMetrics.totalProduced;
-                charts.output.update();
+            const time = new Date().toLocaleTimeString();
+            const centerLine = 900;
+            const ucl = 950;
+            const lcl = 850;
+            
+            // 生成数据点
+            let value = centerLine + (Math.random() - 0.5) * 60;
+            
+            // 偶尔生成异常点
+            if (Math.random() < 0.05) {
+                value = Math.random() > 0.5 ? ucl + 20 : lcl - 20;
+                addQualityAlert('warning', `温度超出控制限: ${value.toFixed(1)}℃`);
             }
+            
+            const data = charts.spc.data;
+            data.labels.push(time);
+            data.datasets[0].data.push(value);
+            data.datasets[1].data.push(ucl);
+            data.datasets[2].data.push(lcl);
+            
+            // 保持最近20个点
+            if (data.labels.length > 20) {
+                data.labels.shift();
+                data.datasets.forEach(dataset => dataset.data.shift());
+            }
+            
+            charts.spc.update('none');
+        }
+
+        function addQualityAlert(type, message) {
+            const time = new Date().toLocaleTimeString();
+            const log = document.getElementById('qualityLog');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-${type}`;
+            alertDiv.textContent = `[${type.toUpperCase()}] ${time}: ${message}`;
+            log.appendChild(alertDiv);
+            log.scrollTop = log.scrollHeight;
         }
 
         // ========================
-        // 实用函数
+        // Panel 5&6: 设备管理
         // ========================
         
-        function showTooltip(event, slabId) {
-            const tooltip = document.getElementById('customTooltip');
-            tooltip.textContent = slabId;
-            tooltip.style.opacity = '1';
-            tooltip.style.left = (event.clientX + 10) + 'px';
-            tooltip.style.top = (event.clientY - 30) + 'px';
-        }
-
-        function hideTooltip() {
-            const tooltip = document.getElementById('customTooltip');
-            tooltip.style.opacity = '0';
-        }
-
-        function showNotification(message, type) {
-            // 创建通知元素
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type} alert-custom position-fixed`;
-            notification.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
-            notification.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">${message}</div>
-                    <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.parentElement.remove()"></button>
-                </div>
+        function updateEquipmentTable() {
+            const tbody = document.getElementById('equipmentTable');
+            const equipment = mesState.equipment;
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td>加热炉</td>
+                    <td><span class="status-dot status-${equipment.furnace.status}"></span>${getStatusText(equipment.furnace.status)}</td>
+                    <td>${equipment.furnace.uptime}h</td>
+                    <td>${equipment.furnace.load}%</td>
+                </tr>
+                <tr>
+                    <td>精轧机</td>
+                    <td><span class="status-dot status-${equipment.rollingMill.status}"></span>${getStatusText(equipment.rollingMill.status)}</td>
+                    <td>${equipment.rollingMill.uptime}h</td>
+                    <td>${equipment.rollingMill.load}%</td>
+                </tr>
+                <tr>
+                    <td>卷取机</td>
+                    <td><span class="status-dot status-${equipment.coiler.status}"></span>${getStatusText(equipment.coiler.status)}</td>
+                    <td>${equipment.coiler.uptime}h</td>
+                    <td>${equipment.coiler.load}%</td>
+                </tr>
             `;
-            
-            document.body.appendChild(notification);
-            
-            // 3秒后自动移除
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 3000);
+        }
+
+        function updateRollTable() {
+            const tbody = document.getElementById('rollTable');
+            tbody.innerHTML = mesState.equipment.rolls.map(roll => `
+                <tr>
+                    <td>${roll.standNo}</td>
+                    <td>${roll.rollId}</td>
+                    <td>${roll.installTime}</td>
+                    <td>${roll.tonnage.toFixed(1)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'running': '运行',
+                'idle': '空闲',
+                'fault': '故障'
+            };
+            return statusMap[status] || status;
         }
 
         // ========================
-        // 演示数据填充
+        // Panel 7: 能源管理
         // ========================
         
-        function populateDemoData() {
-            // 此函数可用于演示时快速填充数据
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    if (simulationState.dispatchedTasks.length > 0) {
-                        const task = simulationState.dispatchedTasks.shift();
-                        const slab = createSlab(task);
-                        slab.stage = 4; // 快进到完成状态
-                        finishSlab(slab);
-                    }
-                }, i * 1000);
+        function updateEnergyPanel() {
+            const energy = mesState.energy;
+            
+            document.getElementById('powerValue').textContent = energy.power;
+            document.getElementById('gasValue').textContent = Math.round(energy.gasFlow / 1000) + 'k';
+            document.getElementById('waterValue').textContent = energy.waterFlow;
+            document.getElementById('energyCost').textContent = energy.totalCost.toLocaleString();
+        }
+
+        // ========================
+        // Panel 8: 数据采集
+        // ========================
+        
+        function addDataLog(type, message) {
+            const time = new Date().toLocaleTimeString();
+            const log = document.getElementById('systemLog');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log-${type}`;
+            logDiv.textContent = `[${type.toUpperCase()}] ${time} - ${message}`;
+            
+            mesState.dataAcquisition.logs.push({ time, type, message });
+            log.appendChild(logDiv);
+            log.scrollTop = log.scrollHeight;
+            
+            // 保持最近50条日志
+            if (log.children.length > 50) {
+                log.removeChild(log.firstChild);
             }
         }
 
-        // 添加键盘快捷键用于演示
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'd') {
-                e.preventDefault();
-                populateDemoData();
-                showNotification('演示数据已填充！', 'info');
+        // ========================
+        // Panel 9: 生产报表
+        // ========================
+        
+        function updateReportsPanel() {
+            const tbody = document.getElementById('reportsTable');
+            
+            if (mesState.production.completedCoils.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">暂无完成产品</td></tr>';
+                return;
             }
-        });
+            
+            tbody.innerHTML = mesState.production.completedCoils.slice(-10).map(coil => `
+                <tr>
+                    <td>COIL-${coil.materialId.split('-')[1]}</td>
+                    <td>${coil.weight}</td>
+                    <td>${coil.finalSize}</td>
+                    <td>${coil.completedTime}</td>
+                    <td>
+                        <span class="badge badge-sm ${coil.quality === '合格' ? 'bg-success' : 'bg-danger'}">${coil.quality}</span>
+                    </td>
+                </tr>
+            `).reverse().join('');
+            
+            // 更新KPI
+            const totalCoils = mesState.production.completedCoils.length;
+            const qualifiedCoils = mesState.production.completedCoils.filter(c => c.quality === '合格').length;
+            const yieldRate = totalCoils > 0 ? ((qualifiedCoils / totalCoils) * 100).toFixed(1) : 97.5;
+            
+            document.getElementById('yieldRate').textContent = yieldRate + '%';
+            document.getElementById('oeeRate').textContent = (85 + Math.random() * 10).toFixed(1) + '%';
+            document.getElementById('planAdherence').textContent = (95 + Math.random() * 5).toFixed(1) + '%';
+        }
+
+        // ========================
+        // 仿真控制
+        // ========================
+        
+        function toggleSimulation() {
+            if (mesState.simulation.isRunning) {
+                stopSimulation();
+            } else {
+                startSimulation();
+            }
+        }
+
+        function startSimulation() {
+            mesState.simulation.isRunning = true;
+            mesState.simulation.interval = setInterval(simulationTick, 3000);
+            
+            document.getElementById('simStatus').classList.add('running');
+            document.getElementById('simText').textContent = '系统运行';
+            document.getElementById('toggleSim').textContent = '停止系统';
+            
+            addDataLog('success', 'MES仿真系统启动');
+        }
+
+        function stopSimulation() {
+            mesState.simulation.isRunning = false;
+            if (mesState.simulation.interval) {
+                clearInterval(mesState.simulation.interval);
+            }
+            
+            document.getElementById('simStatus').classList.remove('running');
+            document.getElementById('simText').textContent = '系统停止';
+            document.getElementById('toggleSim').textContent = '启动系统';
+            
+            addDataLog('info', 'MES仿真系统停止');
+        }
+
+        function simulationTick() {
+            mesState.simulation.time += 3;
+            
+            // 更新在制产品
+            updateMaterialProgress();
+            
+            // 更新设备状态
+            updateEquipmentStatus();
+            
+            // 更新能源数据
+            updateEnergyData();
+            
+            // 更新质量数据
+            updateSPCChart();
+            
+            // 生成系统日志
+            generateSystemLogs();
+            
+            // 更新所有面板
+            updateAllPanels();
+        }
+
+        function updateMaterialProgress() {
+            const material = mesState.production.currentMaterial;
+            if (!material) return;
+            
+            // 模拟工艺过程
+            switch(material.stage) {
+                case 0: // 库区 -> 加热炉
+                    material.stage = 1;
+                    material.currentTemp = 25;
+                    mesState.equipment.furnace.status = 'running';
+                    mesState.equipment.furnace.load = 75;
+                    addDataLog('info', `${material.materialId} 进入加热炉`);
+                    break;
+                    
+                case 1: // 加热炉 -> 轧机
+                    material.currentTemp = material.targetTemp;
+                    material.stage = 2;
+                    mesState.equipment.furnace.status = 'idle';
+                    mesState.equipment.furnace.load = 0;
+                    mesState.equipment.rollingMill.status = 'running';
+                    mesState.equipment.rollingMill.load = 85;
+                    addDataLog('info', `${material.materialId} 进入轧机`);
+                    break;
+                    
+                case 2: // 轧机 -> 卷取机
+                    material.currentThickness = material.targetThickness;
+                    material.stage = 3;
+                    mesState.equipment.rollingMill.status = 'idle';
+                    mesState.equipment.rollingMill.load = 0;
+                    mesState.equipment.coiler.status = 'running';
+                    mesState.equipment.coiler.load = 60;
+                    
+                    // 更新轧辊过钢量
+                    mesState.equipment.rolls.forEach(roll => {
+                        roll.tonnage += Math.random() * 5 + 25; // 25-30t
+                    });
+                    
+                    addDataLog('info', `${material.materialId} 进入卷取机`);
+                    break;
+                    
+                case 3: // 完成生产
+                    material.stage = 4;
+                    mesState.equipment.coiler.status = 'idle';
+                    mesState.equipment.coiler.load = 0;
+                    
+                    // 创建完成产品
+                    const coil = {
+                        materialId: material.materialId,
+                        weight: (Math.random() * 50 + 150).toFixed(1) + 't',
+                        finalSize: material.targetSize,
+                        completedTime: new Date().toLocaleTimeString(),
+                        quality: Math.random() > 0.1 ? '合格' : '不合格'
+                    };
+                    
+                    mesState.production.completedCoils.push(coil);
+                    addCoilToYard(`COIL-${material.materialId.split('-')[1]}`);
+                    
+                    // 更新计划状态
+                    const plan = mesState.production.plans.find(p => p.materialId === material.materialId);
+                    if (plan) plan.status = '已完成';
+                    
+                    addDataLog('success', `${material.materialId} 生产完成`);
+                    
+                    // 清空当前材料
+                    mesState.production.currentMaterial = null;
+                    break;
+            }
+        }
+
+        function updateEquipmentStatus() {
+            // 随机设备故障
+            if (Math.random() < 0.02) {
+                const equipmentNames = ['furnace', 'rollingMill', 'coiler'];
+                const randomEquipment = equipmentNames[Math.floor(Math.random() * equipmentNames.length)];
+                
+                if (mesState.equipment[randomEquipment].status !== 'fault') {
+                    mesState.equipment[randomEquipment].status = 'fault';
+                    mesState.equipment[randomEquipment].load = 0;
+                    addDataLog('error', `${randomEquipment} 设备故障！`);
+                    
+                    // 5秒后恢复
+                    setTimeout(() => {
+                        mesState.equipment[randomEquipment].status = 'idle';
+                        addDataLog('success', `${randomEquipment} 设备恢复正常`);
+                    }, 5000);
+                }
+            }
+            
+            // 更新运行时长
+            Object.values(mesState.equipment).forEach(eq => {
+                if (eq.uptime !== undefined && eq.status === 'running') {
+                    eq.uptime += 0.001; // 每tick增加少许时间
+                }
+            });
+        }
+
+        function updateEnergyData() {
+            const energy = mesState.energy;
+            
+            // 根据设备状态更新能耗
+            let totalLoad = 0;
+            if (mesState.equipment.furnace.status === 'running') totalLoad += 15;
+            if (mesState.equipment.rollingMill.status === 'running') totalLoad += 8;
+            if (mesState.equipment.coiler.status === 'running') totalLoad += 2;
+            
+            energy.power = 25 + totalLoad + Math.random() * 5 - 2.5;
+            energy.gasFlow = 15000 + totalLoad * 200 + Math.random() * 1000 - 500;
+            energy.waterFlow = 800 + totalLoad * 10 + Math.random() * 50 - 25;
+            energy.totalCost += Math.round(energy.power * 0.6); // 简单的成本计算
+        }
+
+        function generateSystemLogs() {
+            const logMessages = [
+                { type: 'info', message: 'Received L2 data packet from Rolling Mill' },
+                { type: 'success', message: 'Sent production data to ERP system' },
+                { type: 'warning', message: 'OPC-UA connection latency is high (350ms)' },
+                { type: 'info', message: 'Database backup completed successfully' },
+                { type: 'info', message: 'Temperature sensor calibration check' },
+                { type: 'success', message: 'Quality data synchronized with QCS' }
+            ];
+            
+            if (Math.random() < 0.3) {
+                const randomLog = logMessages[Math.floor(Math.random() * logMessages.length)];
+                addDataLog(randomLog.type, randomLog.message);
+            }
+        }
+
+        function updateAllPanels() {
+            updateTrackingPanel();
+            updateEquipmentTable();
+            updateRollTable();
+            updateEnergyPanel();
+            updateReportsPanel();
+            updatePlanningTable();
+        }
     </script>
 </body>
 </html>
