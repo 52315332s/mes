@@ -22,16 +22,16 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
         .main-container {
-            height: 100vh;
+            min-height: 100vh;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            grid-template-rows: 60px 1fr 1fr 1fr;
-            gap: 8px;
-            padding: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 80px repeat(4, minmax(350px, auto));
+            gap: 12px;
+            padding: 12px;
             box-sizing: border-box;
         }
 
@@ -42,27 +42,28 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
         }
 
         .panel {
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            min-height: 350px;
         }
 
         .panel-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             color: var(--primary-blue);
-            margin-bottom: 12px;
-            padding-bottom: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 2px solid var(--light-gray);
         }
 
@@ -78,19 +79,20 @@
         }
 
         .planning-table {
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .planning-controls {
-            margin-top: 10px;
+            margin-top: 15px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn-sm-custom {
-            padding: 4px 12px;
-            font-size: 11px;
-            border-radius: 4px;
+            padding: 6px 15px;
+            font-size: 12px;
+            border-radius: 6px;
         }
 
         /* Panel 2: 库区管理 */
@@ -100,41 +102,69 @@
         }
 
         .yard-section {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .yard-grid {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 2px;
-            margin-bottom: 8px;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
         }
 
         .yard-cell {
             aspect-ratio: 1;
-            background: var(--light-gray);
-            border-radius: 3px;
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 9px;
             font-weight: bold;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .yard-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .yard-cell.occupied {
-            background: var(--secondary-blue);
+            background: linear-gradient(135deg, var(--secondary-blue), #2980b9);
             color: white;
+            border-color: var(--secondary-blue);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
         }
 
         .yard-cell.finished {
-            background: var(--success-green);
+            background: linear-gradient(135deg, var(--success-green), #229954);
             color: white;
+            border-color: var(--success-green);
+            box-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .yard-cell.empty {
+            background: #f8f9fa;
+            border-style: dashed;
+            border-color: #ced4da;
+            color: #adb5bd;
         }
 
         .yard-stats {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--dark-gray);
+            background: var(--light-gray);
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
         }
 
         /* Panel 3: 物料跟踪 */
@@ -147,19 +177,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             position: relative;
+            padding: 10px 0;
         }
 
         .stage-box {
-            width: 60px;
-            height: 40px;
-            border-radius: 6px;
+            width: 70px;
+            height: 50px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: bold;
         }
 
@@ -171,28 +202,30 @@
 
         .material-arrow {
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 25px;
+            height: 25px;
             background: #34495e;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 8px;
+            font-size: 10px;
+            font-weight: bold;
             transition: all 0.8s ease;
             z-index: 10;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         }
 
         .material-info {
-            font-size: 10px;
+            font-size: 11px;
             background: var(--light-gray);
-            padding: 8px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
         }
 
         .material-info table {
-            font-size: 9px;
+            font-size: 10px;
         }
 
         /* Panel 4: 质量管理 */
@@ -202,17 +235,17 @@
         }
 
         .spc-chart-container {
-            height: 120px;
-            margin-bottom: 10px;
+            height: 150px;
+            margin-bottom: 15px;
         }
 
         .quality-log {
-            height: 80px;
+            height: 120px;
             overflow-y: auto;
             background: var(--light-gray);
-            padding: 5px;
-            border-radius: 4px;
-            font-size: 9px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
             font-family: monospace;
         }
 
@@ -227,16 +260,16 @@
         }
 
         .equipment-table {
-            font-size: 10px;
-            margin-bottom: 10px;
+            font-size: 11px;
+            margin-bottom: 15px;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 4px;
+            margin-right: 6px;
         }
 
         .status-running { background: var(--success-green); }
@@ -252,25 +285,25 @@
         .energy-gauges {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .gauge {
             text-align: center;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .gauge-circle {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border: 4px solid var(--light-gray);
+            border: 5px solid var(--light-gray);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 5px;
+            margin: 0 auto 8px;
             position: relative;
-            font-size: 8px;
+            font-size: 9px;
             font-weight: bold;
         }
 
@@ -280,9 +313,12 @@
 
         .energy-cost {
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--primary-blue);
+            background: var(--light-gray);
+            padding: 10px;
+            border-radius: 8px;
         }
 
         /* Panel 8: 数据采集 */
@@ -296,11 +332,11 @@
             overflow-y: auto;
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 9px;
-            line-height: 1.3;
+            font-size: 10px;
+            line-height: 1.4;
         }
 
         .log-info { color: #3498db; }
@@ -317,48 +353,60 @@
         .kpi-section {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .kpi-card {
             text-align: center;
             background: var(--light-gray);
-            padding: 8px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
         }
 
         .kpi-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: var(--primary-blue);
         }
 
         .kpi-label {
-            font-size: 9px;
+            font-size: 10px;
             color: var(--dark-gray);
         }
 
         .reports-table {
-            font-size: 9px;
+            font-size: 10px;
+        }
+
+        /* Panel 10: 新增设备监控 */
+        .panel-monitoring {
+            grid-column: 1 / 3;
+            grid-row: 5;
+        }
+
+        /* Panel 11: 新增工艺参数 */
+        .panel-process {
+            grid-column: 3 / 5;
+            grid-row: 5;
         }
 
         .simulation-controls {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .sim-status {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 14px;
         }
 
         .status-indicator {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--danger-red);
         }
@@ -375,18 +423,37 @@
         }
 
         .table-sm th, .table-sm td {
-            padding: 3px 6px;
+            padding: 4px 8px;
             vertical-align: middle;
         }
 
         .badge-sm {
-            font-size: 8px;
-            padding: 2px 6px;
+            font-size: 9px;
+            padding: 3px 8px;
         }
 
         .btn-xs {
-            padding: 2px 8px;
-            font-size: 10px;
+            padding: 3px 10px;
+            font-size: 11px;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
@@ -406,7 +473,7 @@
                 <button class="btn btn-light btn-sm" id="toggleSim" onclick="toggleSimulation()">
                     启动系统
                 </button>
-                <div style="color: #bdc3c7; font-size: 12px;">
+                <div style="color: #bdc3c7; font-size: 13px;">
                     系统时间: <span id="systemTime">--:--:--</span>
                 </div>
             </div>
@@ -450,21 +517,25 @@
             <div class="panel-title">🏗️ 板坯与钢卷库区管理</div>
             <div class="panel-content">
                 <div class="yard-section">
-                    <h6 style="font-size: 12px; margin-bottom: 8px;">板坯库 (Slab Yard)</h6>
+                    <h6 style="font-size: 13px; margin-bottom: 10px;">板坯库 (Slab Yard)</h6>
                     <div class="yard-grid" id="slabYardGrid">
-                        <!-- 32个存储位 -->
+                        <!-- 40个存储位 -->
                     </div>
                     <div class="yard-stats">
-                        当前库存: <span id="slabStock">15</span> | 总吨位: <span id="slabTonnage">450</span>t
+                        <span>当前库存: <strong id="slabStock">15</strong></span>
+                        <span>总吨位: <strong id="slabTonnage">450</strong>t</span>
+                        <span>利用率: <strong>37.5%</strong></span>
                     </div>
                 </div>
                 <div class="yard-section">
-                    <h6 style="font-size: 12px; margin-bottom: 8px;">钢卷库 (Coil Yard)</h6>
+                    <h6 style="font-size: 13px; margin-bottom: 10px;">钢卷库 (Coil Yard)</h6>
                     <div class="yard-grid" id="coilYardGrid">
-                        <!-- 32个存储位 -->
+                        <!-- 40个存储位 -->
                     </div>
                     <div class="yard-stats">
-                        当前库存: <span id="coilStock">0</span> | 总吨位: <span id="coilTonnage">0</span>t
+                        <span>当前库存: <strong id="coilStock">0</strong></span>
+                        <span>总吨位: <strong id="coilTonnage">0</strong>t</span>
+                        <span>利用率: <strong>0%</strong></span>
                     </div>
                 </div>
             </div>
@@ -483,7 +554,7 @@
                     <div class="material-arrow" id="materialPosition">M</div>
                 </div>
                 <div class="material-info">
-                    <h6 style="font-size: 11px; margin-bottom: 8px;">当前在制产品信息</h6>
+                    <h6 style="font-size: 12px; margin-bottom: 10px;">当前在制产品信息</h6>
                     <table class="table table-sm">
                         <tr><td><strong>物料号:</strong></td><td id="currentMaterialId">--</td></tr>
                         <tr><td><strong>钢种:</strong></td><td id="currentGrade">--</td></tr>
@@ -502,9 +573,9 @@
             <div class="panel-title">📊 质量管理</div>
             <div class="panel-content">
                 <div class="spc-chart-container">
-                    <canvas id="spcChart" width="100" height="60"></canvas>
+                    <canvas id="spcChart" width="100" height="80"></canvas>
                 </div>
-                <h6 style="font-size: 10px; margin-bottom: 5px;">质量报警日志</h6>
+                <h6 style="font-size: 11px; margin-bottom: 8px;">质量报警日志</h6>
                 <div class="quality-log" id="qualityLog">
                     <div class="alert-success">[信息] 系统启动完成</div>
                 </div>
@@ -515,7 +586,7 @@
         <div class="panel panel-equipment">
             <div class="panel-title">⚙️ 设备与轧辊管理</div>
             <div class="panel-content">
-                <h6 style="font-size: 11px; margin-bottom: 8px;">关键设备状态</h6>
+                <h6 style="font-size: 12px; margin-bottom: 10px;">关键设备状态</h6>
                 <table class="table table-sm equipment-table">
                     <thead>
                         <tr><th>设备</th><th>状态</th><th>运行时长</th><th>负载</th></tr>
@@ -524,7 +595,7 @@
                         <!-- 数据将由JavaScript填充 -->
                     </tbody>
                 </table>
-                <h6 style="font-size: 11px; margin-bottom: 8px;">当前在役轧辊</h6>
+                <h6 style="font-size: 12px; margin-bottom: 10px;">当前在役轧辊</h6>
                 <table class="table table-sm">
                     <thead>
                         <tr><th>机架号</th><th>轧辊ID</th><th>装机时间</th><th>已过钢量(t)</th></tr>
@@ -615,6 +686,58 @@
                 </table>
             </div>
         </div>
+
+        <!-- Panel 10: 设备监控详情 -->
+        <div class="panel panel-monitoring">
+            <div class="panel-title">🔧 设备监控详情</div>
+            <div class="panel-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 style="font-size: 12px;">加热炉监控</h6>
+                        <table class="table table-sm">
+                            <tr><td>炉温:</td><td id="furnaceDetailTemp">1250℃</td></tr>
+                            <tr><td>燃气压力:</td><td>2.5 MPa</td></tr>
+                            <tr><td>氧含量:</td><td>21%</td></tr>
+                            <tr><td>板坯数量:</td><td id="furnaceSlabCount">0</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 style="font-size: 12px;">轧机监控</h6>
+                        <table class="table table-sm">
+                            <tr><td>轧制力:</td><td id="rollingForceDetail">0 kN</td></tr>
+                            <tr><td>轧制速度:</td><td id="rollingSpeedDetail">0 m/s</td></tr>
+                            <tr><td>入口厚度:</td><td id="inletThickness">--</td></tr>
+                            <tr><td>出口厚度:</td><td id="outletThickness">--</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 11: 工艺参数控制 -->
+        <div class="panel panel-process">
+            <div class="panel-title">⚡ 工艺参数控制</div>
+            <div class="panel-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 style="font-size: 12px;">温度控制</h6>
+                        <div class="mb-2">
+                            <label style="font-size: 10px;">加热炉设定温度</label>
+                            <input type="range" class="form-range" min="1000" max="1400" value="1250" id="furnaceTempSet">
+                            <small id="furnaceTempValue">1250℃</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 style="font-size: 12px;">轧制控制</h6>
+                        <div class="mb-2">
+                            <label style="font-size: 10px;">轧制速度</label>
+                            <input type="range" class="form-range" min="5" max="25" value="15" id="rollingSpeedSet">
+                            <small id="rollingSpeedValue">15 m/s</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -631,22 +754,14 @@
             },
             
             production: {
-                plans: [
-                    { orderId: 'ORD-2024-001', materialId: 'SLAB-001', grade: 'Q235B', targetSize: '1500×3.0', dueTime: '14:30', status: '待排程' },
-                    { orderId: 'ORD-2024-002', materialId: 'SLAB-002', grade: 'Q345', targetSize: '1200×2.5', dueTime: '15:15', status: '待排程' },
-                    { orderId: 'ORD-2024-003', materialId: 'SLAB-003', grade: 'SS400', targetSize: '1800×4.0', dueTime: '16:00', status: '待排程' },
-                    { orderId: 'ORD-2024-004', materialId: 'SLAB-004', grade: 'Q235B', targetSize: '1000×2.0', dueTime: '16:45', status: '待排程' },
-                    { orderId: 'ORD-2024-005', materialId: 'SLAB-005', grade: 'Q345', targetSize: '1600×3.5', dueTime: '17:30', status: '待排程' },
-                    { orderId: 'ORD-2024-006', materialId: 'SLAB-006', grade: 'SS400', targetSize: '1400×2.8', dueTime: '18:15', status: '待排程' },
-                    { orderId: 'ORD-2024-007', materialId: 'SLAB-007', grade: 'Q235B', targetSize: '1100×2.2', dueTime: '19:00', status: '待排程' }
-                ],
+                plans: [],
                 currentMaterial: null,
                 completedCoils: []
             },
             
             yards: {
-                slabYard: Array(32).fill(null).map((_, i) => i < 15 ? `S${String(i+1).padStart(3, '0')}` : null),
-                coilYard: Array(32).fill(null),
+                slabYard: Array(40).fill(null),
+                coilYard: Array(40).fill(null),
                 slabStock: 15,
                 slabTonnage: 450,
                 coilStock: 0,
@@ -690,6 +805,38 @@
 
         let charts = {};
 
+        // 生成大量订单数据
+        function generateOrderData() {
+            const grades = ['Q235B', 'Q345', 'SS400', 'Q460', 'Q550', 'Q690'];
+            const widths = [1000, 1200, 1500, 1600, 1800, 2000];
+            const thicknesses = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
+            
+            const orders = [];
+            for (let i = 1; i <= 50; i++) {
+                const orderId = `ORD-2024-${String(i).padStart(3, '0')}`;
+                const materialId = `SLAB-${String(i).padStart(3, '0')}`;
+                const grade = grades[Math.floor(Math.random() * grades.length)];
+                const width = widths[Math.floor(Math.random() * widths.length)];
+                const thickness = thicknesses[Math.floor(Math.random() * thicknesses.length)];
+                const targetSize = `${width}×${thickness}`;
+                
+                // 生成时间
+                const hour = 14 + Math.floor(i / 10);
+                const minute = (i * 15) % 60;
+                const dueTime = `${hour}:${String(minute).padStart(2, '0')}`;
+                
+                orders.push({
+                    orderId,
+                    materialId,
+                    grade,
+                    targetSize,
+                    dueTime,
+                    status: '待排程'
+                });
+            }
+            return orders;
+        }
+
         // ========================
         // 初始化
         // ========================
@@ -699,12 +846,20 @@
         });
 
         function initializeSystem() {
+            mesState.production.plans = generateOrderData();
+            
+            // 初始化板坯库
+            for (let i = 0; i < 15; i++) {
+                mesState.yards.slabYard[i] = `S${String(i+1).padStart(3, '0')}`;
+            }
+            
             updateSystemTime();
             initializeYardGrids();
             updatePlanningTable();
             updateEquipmentTable();
             updateRollTable();
             initializeSPCChart();
+            setupProcessControls();
             updateAllPanels();
             
             // 启动时间更新
@@ -714,6 +869,26 @@
         function updateSystemTime() {
             const now = new Date();
             document.getElementById('systemTime').textContent = now.toLocaleTimeString();
+        }
+
+        function setupProcessControls() {
+            // 加热炉温度控制
+            const furnaceTempSlider = document.getElementById('furnaceTempSet');
+            const furnaceTempValue = document.getElementById('furnaceTempValue');
+            
+            furnaceTempSlider.addEventListener('input', function() {
+                furnaceTempValue.textContent = this.value + '℃';
+                mesState.equipment.furnace.temp = parseInt(this.value);
+            });
+            
+            // 轧制速度控制
+            const rollingSpeedSlider = document.getElementById('rollingSpeedSet');
+            const rollingSpeedValue = document.getElementById('rollingSpeedValue');
+            
+            rollingSpeedSlider.addEventListener('input', function() {
+                rollingSpeedValue.textContent = this.value + ' m/s';
+                mesState.equipment.rollingMill.speed = parseInt(this.value);
+            });
         }
 
         // ========================
@@ -803,22 +978,30 @@
             const coilGrid = document.getElementById('coilYardGrid');
             
             // 板坯库网格
-            for (let i = 0; i < 32; i++) {
+            for (let i = 0; i < 40; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'yard-cell';
                 cell.id = `slab-cell-${i}`;
+                
                 if (mesState.yards.slabYard[i]) {
                     cell.classList.add('occupied');
                     cell.textContent = mesState.yards.slabYard[i];
+                    cell.title = `板坯: ${mesState.yards.slabYard[i]}`;
+                } else {
+                    cell.classList.add('empty');
+                    cell.textContent = i + 1;
+                    cell.title = `存储位 ${i + 1} (空闲)`;
                 }
                 slabGrid.appendChild(cell);
             }
             
             // 钢卷库网格
-            for (let i = 0; i < 32; i++) {
+            for (let i = 0; i < 40; i++) {
                 const cell = document.createElement('div');
-                cell.className = 'yard-cell';
+                cell.className = 'yard-cell empty';
                 cell.id = `coil-cell-${i}`;
+                cell.textContent = i + 1;
+                cell.title = `存储位 ${i + 1} (空闲)`;
                 coilGrid.appendChild(cell);
             }
             
@@ -837,8 +1020,10 @@
             if (emptyIndex !== -1) {
                 mesState.yards.coilYard[emptyIndex] = coilId;
                 const cell = document.getElementById(`coil-cell-${emptyIndex}`);
+                cell.classList.remove('empty');
                 cell.classList.add('finished');
                 cell.textContent = coilId.split('-')[1];
+                cell.title = `钢卷: ${coilId}`;
                 
                 mesState.yards.coilStock++;
                 mesState.yards.coilTonnage += Math.round(Math.random() * 50 + 150); // 150-200t
@@ -869,7 +1054,7 @@
             materialPos.style.display = 'flex';
             
             // 更新位置
-            const positions = ['7%', '27%', '47%', '67%', '87%'];
+            const positions = ['8%', '28%', '48%', '68%', '88%'];
             materialPos.style.left = positions[material.stage];
             
             // 更新信息
@@ -899,8 +1084,8 @@
                         data: [],
                         borderColor: '#3498db',
                         backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        borderWidth: 1,
-                        pointRadius: 2
+                        borderWidth: 2,
+                        pointRadius: 3
                     }, {
                         label: '上控制限',
                         data: [],
@@ -925,17 +1110,17 @@
                         title: {
                             display: true,
                             text: '精轧出口温度SPC监控',
-                            font: { size: 10 }
+                            font: { size: 12 }
                         }
                     },
                     scales: {
                         y: {
                             min: 800,
                             max: 1000,
-                            ticks: { font: { size: 8 } }
+                            ticks: { font: { size: 9 } }
                         },
                         x: {
-                            ticks: { font: { size: 8 } }
+                            ticks: { font: { size: 9 } }
                         }
                     }
                 }
@@ -1104,6 +1289,25 @@
         }
 
         // ========================
+        // 额外的监控面板更新
+        // ========================
+        
+        function updateMonitoringPanel() {
+            document.getElementById('furnaceDetailTemp').textContent = mesState.equipment.furnace.temp + '℃';
+            document.getElementById('furnaceSlabCount').textContent = mesState.production.currentMaterial && mesState.production.currentMaterial.stage === 1 ? '1' : '0';
+            document.getElementById('rollingForceDetail').textContent = mesState.equipment.rollingMill.force + ' kN';
+            document.getElementById('rollingSpeedDetail').textContent = mesState.equipment.rollingMill.speed + ' m/s';
+            
+            if (mesState.production.currentMaterial && mesState.production.currentMaterial.stage === 2) {
+                document.getElementById('inletThickness').textContent = '250mm';
+                document.getElementById('outletThickness').textContent = mesState.production.currentMaterial.currentThickness + 'mm';
+            } else {
+                document.getElementById('inletThickness').textContent = '--';
+                document.getElementById('outletThickness').textContent = '--';
+            }
+        }
+
+        // ========================
         // 仿真控制
         // ========================
         
@@ -1182,6 +1386,7 @@
                     mesState.equipment.furnace.load = 0;
                     mesState.equipment.rollingMill.status = 'running';
                     mesState.equipment.rollingMill.load = 85;
+                    mesState.equipment.rollingMill.force = 2500;
                     addDataLog('info', `${material.materialId} 进入轧机`);
                     break;
                     
@@ -1190,6 +1395,7 @@
                     material.stage = 3;
                     mesState.equipment.rollingMill.status = 'idle';
                     mesState.equipment.rollingMill.load = 0;
+                    mesState.equipment.rollingMill.force = 0;
                     mesState.equipment.coiler.status = 'running';
                     mesState.equipment.coiler.load = 60;
                     
@@ -1279,23 +1485,3 @@
                 { type: 'warning', message: 'OPC-UA connection latency is high (350ms)' },
                 { type: 'info', message: 'Database backup completed successfully' },
                 { type: 'info', message: 'Temperature sensor calibration check' },
-                { type: 'success', message: 'Quality data synchronized with QCS' }
-            ];
-            
-            if (Math.random() < 0.3) {
-                const randomLog = logMessages[Math.floor(Math.random() * logMessages.length)];
-                addDataLog(randomLog.type, randomLog.message);
-            }
-        }
-
-        function updateAllPanels() {
-            updateTrackingPanel();
-            updateEquipmentTable();
-            updateRollTable();
-            updateEnergyPanel();
-            updateReportsPanel();
-            updatePlanningTable();
-        }
-    </script>
-</body>
-</html>
